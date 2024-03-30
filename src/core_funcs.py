@@ -50,10 +50,10 @@ def make_tileset_dict(tileset_path: str):
     return tileset
 
 
-def check_if_sprite_is_not_transparent(surface: pg.Surface):
-    for y in range(0, surface.get_height()):
-        for x in range(0, surface.get_width()):
-            if surface.get_at((x, y))[3] > 0:
+def check_if_sprite_is_not_transparent(surf: pg.Surface):
+    for y in range(0, surf.get_height()):
+        for x in range(0, surf.get_width()):
+            if surf.get_at((x, y))[3] > 0:
                 return True
     return False
 
@@ -76,3 +76,6 @@ def load_json(path: str):
     with open(path) as f:
         json_data = json.load(f)
     return json_data
+
+def timer(current_time, prev_time, cool_down):
+    return current_time - prev_time > cool_down
