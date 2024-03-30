@@ -29,3 +29,4 @@ PATHS = {
     "objects": current_dir + "/assets/objects",
     "spawns": current_dir + "/assets/spawns",
 }
+
