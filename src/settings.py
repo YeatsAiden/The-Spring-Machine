@@ -26,5 +26,6 @@ PATHS = {
     "buttons": current_dir + "/assets/buttons",
     "objects": current_dir + "/assets/objects",
     "spawns": current_dir + "/assets/spawns",
+    "player": current_dir + "/assets/player",
 }
 

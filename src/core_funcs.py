@@ -77,5 +77,16 @@ def load_json(path: str):
         json_data = json.load(f)
     return json_data
 
+
 def timer(current_time, prev_time, cool_down):
     return current_time - prev_time > cool_down
+
+
+def freeze_frame(self, condition: bool, freeze: bool, freeze_time: int, time_since_freeze: float, current_time: float):
+    if condition:
+        freeze = True
+    if freeze and timer(current_time, time_since_freeze, freeze_time):
+        freeze = False
+        return True
+
+    return freeze

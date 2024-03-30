@@ -8,7 +8,7 @@ class Animation:
         self.image: pg.Surface = self.animation[0]
         self.animation_index: int = 0
 
-        self.animation_freeze: bool = False
+        self.freeze_time: bool = False
         self.freeze: bool = False
         self.time_since_freeze: float = 0
 
@@ -32,13 +32,3 @@ class Animation:
         self.animation_index = 0 if self.animation_index == len(self.animation) else self.animation_index
         image = pg.transform.flip(self.image, flip, False)
         return image
-    
-
-    def freeze_frame(self, condition: bool, current_time: float):
-        if condition:
-            self.freeze = True
-            self.time_since_freeze = time.time()
-        if self.freeze and timer(current_time, self.time_since_freeze, self.animation_freeze):
-            self.freeze = False
-            
-        return self.freeze
