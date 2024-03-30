@@ -8,13 +8,8 @@ class Player(Entity):
         super().__init__()
         self.flip = False
 
-        self.animation: dict[str, dict[str, Animation]] = {
-            dir: {
-                    file.split(".")[0]: Animation(PATHS["player"] + "/" + dir + "/" + file) for file in get_file_names(PATHS["player"] + "/" + dir)
-                }
-                for dir in get_dir_names(PATHS["player"])
-            }
-
+        self.animation: dict[str, Animation] = {dir: Animation(PATHS["player"] + "/" + dir) for dir in get_dir_names(PATHS["player"])}
+        self.animation_config: dict[str, dict] = {dir: load_json(PATHS["player"] + "/" + dir + "/" + dir + ".json") for dir in get_dir_names(PATHS["player"])}
 
         self.pos = pos
         self.image = self.animation.animations['idle'][0]
@@ -35,7 +30,7 @@ class Player(Entity):
 
     def draw(self, surf, cam_pos):
         pass
-    
+
 
     def move(self, keys_pressed, dt, rects, current_time):
         pass
