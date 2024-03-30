@@ -1,4 +1,4 @@
-from core_funcs import*
+from core_funcs import *
 from settings import *
 from .state import State
 

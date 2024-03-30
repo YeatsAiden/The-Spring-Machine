@@ -7,18 +7,18 @@ from states.pause_menu import PauseMenu
 
 class StateManager:
     def __init__(self, display, window, clock) -> None:
-        self.display = display
+        self.display: pg.Surface = display
         self.window = window
-        self.clock = clock
+        self.clock: pg.Clock = clock
 
         self.states = {
             "MainMenu": MainMenu,
             "PauseMenu": PauseMenu,
             "Game": Game
         }
-        self.current_state = "MainMenu"
+        self.current_state: str = "Game"
         self.state = self.states[self.current_state]()
-        self.previous_state = None
+        self.previous_state: str = None
 
         self.cam_pos = pg.Vector2(0, 0)
         self.xy_change = [0, 0]
@@ -27,11 +27,12 @@ class StateManager:
         self.current_time = time.time()
         self.dt = 1
 
-        self.full_screen = FULL_SCREEN
+        self.full_screen: bool = FULL_SCREEN
+        self.fps: int = FPS
     
 
-    def update(self, dt: float):
-        self.state.update(dt)
+    def update(self, dt: float, cam_pos: pg.Vector2):
+        self.state.update(dt, cam_pos)
 
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
@@ -63,10 +64,10 @@ class StateManager:
         while True:
             events = pg.event.get()
             self.event_loop(events)
-            self.update(self.dt)
+            self.update(self.dt, self.cam_pos)
             self.draw(self.display, self.cam_pos)
-            display_cp, xy_change, scale = resize_surface(self.window, self.display)
-            self.window.blit(display_cp, xy_change)
+            display_cp, self.xy_change, self.scale = resize_surface(self.window, self.display)
+            self.window.blit(display_cp, self.xy_change)
             pg.display.update()
             self.dt = self.clock.tick(FPS) / 1000
         
