@@ -36,5 +36,5 @@ class Animation:
     def animate(self, flip: bool):
         self.animation_index += 1
         self.animation_index = 0 if self.animation_index == len(self.animation) else self.animation_index
-        image = pg.transform.flip(self.image, flip, False)
+        image = pg.transform.flip(self.animation[self.animation_index], flip, False)
         return image
