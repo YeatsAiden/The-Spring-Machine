@@ -1,5 +1,4 @@
-from core_funcs import*
-from settings import *
+from src.settings import *
 
 
 class State:
@@ -9,7 +8,7 @@ class State:
         self.next_state = None
     
 
-    def update(self, dt: float):
+    def update(self, dt: float, keys_pressed, current_time: float):
         pass
 
 

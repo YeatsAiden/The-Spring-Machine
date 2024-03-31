@@ -1,9 +1,8 @@
-from core_funcs import *
-from settings import *
-from ui import *
+from src.settings import *
+from src.ui import *
 from .state import State
-from level import Level
-from player import Player
+from src.level import Level
+from src.player import Player
 
 class Game(State):
     def __init__(self) -> None:
@@ -25,17 +24,22 @@ class Game(State):
 
         self.cam_pos = pg.Vector2(0, 0)
 
-        self.player = Player(PATHS["player"], [0, 0])
+        self.player = Player(PATHS["player"], [50, 0])
     
 
-    def update(self, dt: float):
-        self.cam_pos[0] += (self.player.rect.x - self.cam_pos[0] - WINDOW_WIDTH/2)/10
-        self.cam_pos[1] += (self.player.rect.y - self.cam_pos[1] - WINDOW_HEIGHT/2)/10
+    def update(self, dt: float, keys_pressed, current_time: float):
+        self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
+        self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
+        self.rect_area = self.levels["0"].get_rects(self.tile_area)
+
+        self.player.move(keys_pressed, dt, self.rect_area, current_time)
+
 
     def draw(self, surf: pg.Surface):
         surf.fill("black")
         self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
+        self.player.draw(surf, self.cam_pos)
 
 
     def event_loop(self, events):

@@ -1,5 +1,4 @@
-from core_funcs import *
-from settings import *
+from src.settings import *
 from .state import State
 
 class MainMenu(State):

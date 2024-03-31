@@ -28,10 +28,12 @@ class StateManager:
 
         self.full_screen: bool = FULL_SCREEN
         self.fps: int = FPS
+
+        self.keys_pressed = pg.key.get_pressed()
     
 
-    def update(self, dt: float):
-        self.state.update(dt)
+    def update(self, dt: float, keys_pressed, current_time: float):
+        self.state.update(dt, keys_pressed, current_time)
 
 
     def draw(self, surf: pg.Surface):
@@ -61,9 +63,12 @@ class StateManager:
 
     def run(self):
         while True:
+            self.current_time = time.time()
+            self.keys_pressed = pg.key.get_pressed()
+
             events = pg.event.get()
             self.event_loop(events)
-            self.update(self.dt)
+            self.update(self.dt, self.keys_pressed, self.current_time)
             self.draw(self.display)
 
             display_cp, self.xy_change, self.scale = resize_surface(self.window, self.display)
