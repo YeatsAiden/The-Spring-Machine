@@ -20,7 +20,6 @@ class StateManager:
         self.state = self.states[self.current_state]()
         self.previous_state: str = None
 
-        self.cam_pos = pg.Vector2(0, 0)
         self.xy_change = [0, 0]
         self.scale = 1
 
@@ -31,12 +30,12 @@ class StateManager:
         self.fps: int = FPS
     
 
-    def update(self, dt: float, cam_pos: pg.Vector2):
-        self.state.update(dt, cam_pos)
+    def update(self, dt: float):
+        self.state.update(dt)
 
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
-        self.state.draw(surf, cam_pos)
+    def draw(self, surf: pg.Surface):
+        self.state.draw(surf)
 
     
     def event_loop(self, events):
@@ -57,17 +56,18 @@ class StateManager:
             self.state.done = False
             self.previous_state = self.current_state
             self.current_state = self.state.next_state
-            self.state = self.states[self.current_state]
+            self.state = self.states[self.current_state]()
 
 
     def run(self):
         while True:
             events = pg.event.get()
             self.event_loop(events)
-            self.update(self.dt, self.cam_pos)
-            self.draw(self.display, self.cam_pos)
+            self.update(self.dt)
+            self.draw(self.display)
+
             display_cp, self.xy_change, self.scale = resize_surface(self.window, self.display)
             self.window.blit(display_cp, self.xy_change)
-            pg.display.update()
             self.dt = self.clock.tick(FPS) / 1000
+            pg.display.update()
         

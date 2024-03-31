@@ -13,7 +13,7 @@ class PauseMenu(State):
         pass
 
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
+    def draw(self, surf: pg.Surface):
         pass
 
 

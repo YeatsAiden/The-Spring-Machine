@@ -1,8 +1,9 @@
 from core_funcs import *
 from settings import *
-from level import Level
 from ui import *
 from .state import State
+from level import Level
+from player import Player
 
 class Game(State):
     def __init__(self) -> None:
@@ -21,13 +22,20 @@ class Game(State):
 
         self.tile_area: dict[str, set]
         self.rect_area: dict[str, dict[str, pg.Rect | pg.FRect]]
+
+        self.cam_pos = pg.Vector2(0, 0)
+
+        self.player = Player(PATHS["player"], [0, 0])
     
 
-    def update(self, dt: float, cam_pos: pg.Vector2):
-        self.tile_area = self.levels["0"].get_area(cam_pos)
+    def update(self, dt: float):
+        self.cam_pos[0] += (self.player.rect.x - self.cam_pos[0] - WINDOW_WIDTH/2)/10
+        self.cam_pos[1] += (self.player.rect.y - self.cam_pos[1] - WINDOW_HEIGHT/2)/10
+        self.tile_area = self.levels["0"].get_area(self.cam_pos)
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
-        self.levels["0"].draw_level(surf, self.tile_area, cam_pos)
+    def draw(self, surf: pg.Surface):
+        surf.fill("black")
+        self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
 
 
     def event_loop(self, events):
