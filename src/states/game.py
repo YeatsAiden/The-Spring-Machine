@@ -1,9 +1,9 @@
-from core_funcs import *
-from settings import *
-from ui import *
+from src.core_funcs import *
+from src.settings import *
+from src.ui import *
 from .state import State
-from level import Level
-from player import Player
+from src.level import Level
+from src.player import Player
 
 class Game(State):
     def __init__(self) -> None:
