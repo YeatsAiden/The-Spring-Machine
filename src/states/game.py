@@ -1,3 +1,4 @@
+
 try:
     from settings import *
     from ui import *
@@ -9,6 +10,7 @@ except:
     from src.level import Level
     from src.player import Player
 from .state import State
+
 
 class Game(State):
     def __init__(self) -> None:

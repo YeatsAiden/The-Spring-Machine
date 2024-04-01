@@ -12,6 +12,7 @@ class Entity():
         self.image : pg.Surface
 
         self.pos = pos
+
         self.rect : pg.FRect | pg.Rect     
 
         self.vel = pg.Vector2(0, 0)
