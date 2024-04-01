@@ -33,7 +33,7 @@ class Level:
             for tile in level[layer]:
                 if level[layer][tile]["collision"]:
                     x, y = map(int, tile.split(":"))
-                    rect = pg.Rect(x, y, TILE_SIZE, TILE_SIZE)
+                    rect = pg.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                     rects[layer][tile] = rect
         return rects
 

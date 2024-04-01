@@ -1,8 +1,14 @@
-from src.settings import *
-from src.ui import *
+try:
+    from settings import *
+    from ui import *
+    from level import Level
+    from player import Player
+except:
+    from src.settings import *
+    from src.ui import *
+    from src.level import Level
+    from src.player import Player
 from .state import State
-from src.level import Level
-from src.player import Player
 
 class Game(State):
     def __init__(self) -> None:
@@ -19,17 +25,18 @@ class Game(State):
 
         self.levels: dict[str, Level] = {file.split('.')[0]: Level(self.objects, self.spawns, self.tile_sets, PATHS['levels'] + "/" + file) for file in get_file_names(PATHS['levels']) if file.split('.')[1] == "json"}
 
-        self.tile_area: dict[str, set]
+        self.tile_area: dict[str, dict[str, pg.Rect | pg.FRect]]
         self.rect_area: dict[str, dict[str, pg.Rect | pg.FRect]]
 
         self.cam_pos = pg.Vector2(0, 0)
 
-        self.player = Player(PATHS["player"], [50, 0])
+        self.player = Player(PATHS["player"], [50, -100])
     
 
     def update(self, dt: float, keys_pressed, current_time: float):
         self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
         self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
+
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
         self.rect_area = self.levels["0"].get_rects(self.tile_area)
 

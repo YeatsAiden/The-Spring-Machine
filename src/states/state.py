@@ -1,4 +1,7 @@
-from src.settings import *
+try:
+    from settings import *
+except:
+    from src.settings import *
 
 
 class State:

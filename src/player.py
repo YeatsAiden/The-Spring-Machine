@@ -18,8 +18,12 @@ class Player(Entity):
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
         self.acceleration: int = 5
+        self.max_vel = 20
+        self.min_vel = 1
+
+        self.max_fall_speed: int = 20
         self.g: float = 9.8
-        self.mass = 100
+        self.mass = 50
         self.jump_force = 6
         self.vel = pg.Vector2(0, 0)
         self.momentum = pg.Vector2(0, 0)
@@ -55,7 +59,13 @@ class Player(Entity):
             self.vel.y = 0
             self.vel.y -= self.jump_force * dt
         
-        # self.vel.y += self.g * self.mass * dt
+        self.vel.y += self.g * self.mass * dt
+
+        if abs(self.vel.x) < self.min_vel and not self.input_states["moving"]:
+            self.vel.x = 0
+
+        self.vel.y = min(self.vel.y, self.max_fall_speed)
+        self.vel.x = min(self.vel.x, self.max_vel)
 
         self.movement(rects)
         self.anim_state_check(keys_pressed)
@@ -117,8 +127,11 @@ class Player(Entity):
 
         if self.vel.x == 0 and self.vel.y == 0:
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, "idle", self.current_animation.animation_index)
+        
+        # print(self.collision_state['bottom'])
 
         if self.input_states['moving'] and self.collision_state['bottom'] and not (self.collision_state['right'] or self.collision_state['left']):
+            
             self.state, self.current_animation.animation_index = 'run', self.current_animation.animation_index
 
         if self.input_states['jumping']:

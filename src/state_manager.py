@@ -16,6 +16,7 @@ class StateManager:
             "PauseMenu": PauseMenu,
             "Game": Game
         }
+
         self.current_state: str = "Game"
         self.state = self.states[self.current_state]()
         self.previous_state: str = None
