@@ -12,6 +12,7 @@ except:
 from .state import State
 
 
+
 class Game(State):
     def __init__(self) -> None:
         super().__init__()
@@ -35,9 +36,13 @@ class Game(State):
         self.player = Player(PATHS["player"], [50, -100])
     
 
-    def update(self, dt: float, keys_pressed, current_time: float):
-        self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
-        self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
+    def update(self, *args):
+        dt = args[0]
+        current_time = args[2]
+        keys_pressed = args[3]
+
+        self.cam_pos.x += (self.player.rect.x - self.cam_pos[0] - WINDOW_WIDTH/2)/10
+        self.cam_pos.y += (self.player.rect.y - self.cam_pos[1] - WINDOW_HEIGHT/2)/10
 
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
         self.rect_area = self.levels["0"].get_rects(self.tile_area)
@@ -45,7 +50,9 @@ class Game(State):
         self.player.move(keys_pressed, dt, self.rect_area, current_time)
 
 
-    def draw(self, surf: pg.Surface):
+    def draw(self, *args):
+        surf = args[0]
+
         surf.fill("black")
         self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
         self.player.draw(surf, self.cam_pos)

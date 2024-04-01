@@ -12,11 +12,13 @@ class PauseMenu(State):
         self.next_state = None
     
 
-    def update(self, dt: float):
+    def update(self, *args):
+        dt = args[0]
         pass
 
 
-    def draw(self, surf: pg.Surface):
+    def draw(self, *args):
+        surf = args[0]
         pass
 
 

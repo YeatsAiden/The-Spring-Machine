@@ -90,3 +90,11 @@ def freeze_frame(self, condition: bool, freeze: bool, freeze_time: int, time_sin
         return True
 
     return freeze
+
+
+def get_display_mouse_pos(scale, xy_change):
+    mouse_x, mouse_y = pg.mouse.get_pos()
+    mouse_x = (mouse_x - xy_change[0]) / scale
+    mouse_y = (mouse_y - xy_change[1]) / scale
+
+    return mouse_x, mouse_y

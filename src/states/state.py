@@ -5,17 +5,19 @@ except:
 
 
 class State:
-    def __init__(self) -> None:
+    def __init__(self, show_cursor=False) -> None:
         self.exit = False
         self.quit = False
         self.next_state = None
+
+        self.cursor_visible = show_cursor
     
 
-    def update(self, dt: float, keys_pressed, current_time: float):
+    def update(self, *args):
         pass
 
 
-    def draw(self, surf: pg.Surface):
+    def draw(self, *args):
         pass
 
 
