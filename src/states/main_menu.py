@@ -7,6 +7,8 @@ except:
     from src.core_funcs import *
     from src.ui import *
 
+from .state import State
+
 
 class MainMenu(State):
     def __init__(self) -> None:

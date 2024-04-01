@@ -1,4 +1,3 @@
-
 try:
     from settings import *
     from ui import *
@@ -9,6 +8,7 @@ except:
     from src.ui import *
     from src.level import Level
     from src.player import Player
+
 from .state import State
 
 
