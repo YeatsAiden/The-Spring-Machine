@@ -13,8 +13,8 @@ class MainMenu(State):
         self.smol_font = Font(PATHS["fonts"] + "/" + "smol_font.png", [1, 2, 3], 1)
 
         # main menu
-        self.play_button = Button("assets/ui/buttons/button.png")
-        self.play_button.set_position((DISPLAY_WIDTH-self.play_button.rect.w)//2, 100)
+        self.play_button = Button(pg.image.load(PATHS["buttons"]+"/normal/button1.png"),
+                                  Animation())
 
 
     def update(self, *args):
