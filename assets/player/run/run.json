@@ -51,6 +51,7 @@
  "meta": {
   "app": "https://www.aseprite.org/",
   "version": "1.2.40-dev",
+  "image": "run.png",
   "format": "RGBA8888",
   "size": { "w": 114, "h": 21 },
   "scale": "1",
