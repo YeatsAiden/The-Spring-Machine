@@ -5,6 +5,7 @@ from .state import State
 from src.level import Level
 from src.player import Player
 
+
 class Game(State):
     def __init__(self) -> None:
         super().__init__()
@@ -28,12 +29,16 @@ class Game(State):
         self.player = Player(PATHS["player"], [0, 0])
     
 
-    def update(self, dt: float):
+    def update(self, *args):
+        dt = args[0]
+
         self.cam_pos[0] += (self.player.rect.x - self.cam_pos[0] - WINDOW_WIDTH/2)/10
         self.cam_pos[1] += (self.player.rect.y - self.cam_pos[1] - WINDOW_HEIGHT/2)/10
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
 
-    def draw(self, surf: pg.Surface):
+    def draw(self, *args):
+        surf = args[0]
+
         surf.fill("black")
         self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
 

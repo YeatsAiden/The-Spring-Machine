@@ -1,39 +1,8 @@
 from typing import Any
 from settings import *
 from core_funcs import *
+from animation import Animation
 
-
-class Button:
-    def __init__(self, image: str | pg.Surface, x: int = 0, y: int = 0) -> None:
-        if isinstance(image, str):
-            self.button_img = pg.image.load(image).convert_alpha()
-        else:
-            self.button_img = image
-
-        self.rect = self.button_img.get_rect()
-        self.rect.topleft = [x, y]
-
-        self.click_cooldown = 1
-        self.time_since_click = 0
-        
-    
-    def check_click(self, mouse_pos, mouse_pressed, current_time):
-        click = False
-
-        # check mouseover and clicked conditions
-        if self.rect.collidepoint(mouse_pos) and mouse_pressed[0] and (current_time - self.time_since_click) > self.click_cooldown:
-            self.time_since_click = time.time()
-            click = True
-        # return if clicked
-        return click
-    
-    def set_position(self, x: int, y: int):
-        self.rect.topleft = [x, y]
-
-    def draw(self, surf: pg.Surface):
-        surf.blit(self.button_img, (self.rect.x, self.rect.y))
-
-        
 class Font:
     def __init__(self, path: str, include: list[int, int, int], step: int) -> None:
         self.characters = ["ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz", "0123456789", "!@#$%^&*()`~-_=+\\|[]}{';:/?.>,<"]
@@ -78,3 +47,70 @@ class Font:
                 character_img = pg.transform.scale_by(self.font[letter], size)
                 surface.blit(character_img, (x + x_pos, y))
                 x_pos += character_img.get_width() + size
+
+
+class Button:
+    def __init__(self,
+                 still: pg.Surface | Animation,  # what to draw if the button is left alone
+                 hover: pg.Surface | Animation,  # what to draw if you hover over the button      DUH
+                 click: pg.Surface | Animation,  # what to draw if you click on the button
+                 rect: pg.Rect,
+                 text: str = None) -> None:
+
+        self.rect = rect
+
+        self.still, self.hover, self.click = still, hover, click
+
+        self.text = text
+
+        self.pressed = False  # needed for knowing what type of image/animation to draw
+        self.hovered = False
+
+        self.click_cooldown = 1
+        self.time_since_click = 0
+
+    def check_click(self, mouse_pos, mouse_pressed, current_time):
+        click = False
+
+        # check mouseover and clicked conditions
+        if self.rect.collidepoint(mouse_pos) and mouse_pressed[0] and (current_time - self.time_since_click) > self.click_cooldown:
+            self.time_since_click = current_time
+            click = True
+        # return if clicked
+        return click
+
+    def check_hover(self, mouse_pos):
+        hover = False
+
+        if self.rect.collidepoint(mouse_pos):
+            hover = True
+
+        return hover
+
+    def set_position(self, x: int, y: int):
+        self.rect.topleft = x, y
+
+    def draw_state(self, surf, state, font: Font):
+        if isinstance(state, pg.Surface):
+            image = state
+        else:
+            image = state.animate(False)
+
+        if self.text is not None:
+            font.draw_text(image, self.text, 10, 10, 1, 1)
+
+        surf.blit(image, self.rect)
+
+    def draw(self, surf: pg.Surface, font: Font):
+        if self.pressed:
+            self.draw_state(surf, self.click, font)
+        elif self.hovered:
+            self.draw_state(surf, self.hover, font)
+        else:
+            self.draw_state(surf, self.still, font)
+
+    def update(self, mouse_pos, mouse_pressed, current_time):
+        self.pressed = self.check_click(mouse_pos, mouse_pressed, current_time)
+        self.hovered = self.check_hover(mouse_pos)
+
+

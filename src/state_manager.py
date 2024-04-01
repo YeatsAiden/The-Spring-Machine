@@ -16,7 +16,8 @@ class StateManager:
             "PauseMenu": PauseMenu,
             "Game": Game
         }
-        self.current_state: str = "Game"
+
+        self.current_state: str = "MainMenu"
         self.state = self.states[self.current_state]()
         self.previous_state: str = None
 
@@ -28,14 +29,25 @@ class StateManager:
 
         self.full_screen: bool = FULL_SCREEN
         self.fps: int = FPS
-    
 
-    def update(self, dt: float):
-        self.state.update(dt)
+        self.cursor_image = pg.image.load(PATHS["cursor"]).convert_alpha()
+
+
+    def update(self, *args):
+        dt = args[0]
+        keys_pressed = args[1]
+        current_time = args[2]
+        scale = args[3]
+        xy_change = args[4]
+
+        self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change))
 
 
     def draw(self, surf: pg.Surface):
         self.state.draw(surf)
+
+        if self.state.cursor_visible:
+            self.display.blit(self.cursor_image, get_display_mouse_pos(self.scale, self.xy_change))
 
     
     def event_loop(self, events):
@@ -61,9 +73,12 @@ class StateManager:
 
     def run(self):
         while True:
+            self.current_time = time.time()
+            self.keys_pressed = pg.key.get_pressed()
+
             events = pg.event.get()
             self.event_loop(events)
-            self.update(self.dt)
+            self.update(self.dt, self.keys_pressed, self.current_time, self.scale, self.xy_change)
             self.draw(self.display)
 
             display_cp, self.xy_change, self.scale = resize_surface(self.window, self.display)

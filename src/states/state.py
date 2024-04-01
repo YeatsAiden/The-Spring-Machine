@@ -1,19 +1,21 @@
-from core_funcs import*
-from settings import *
+from src.core_funcs import *
+from src.settings import *
 
 
 class State:
-    def __init__(self) -> None:
+    def __init__(self, show_cursor=False) -> None:
         self.exit = False
         self.quit = False
         self.next_state = None
+
+        self.cursor_visible = show_cursor
     
 
-    def update(self, dt: float):
+    def update(self, *args):
         pass
 
 
-    def draw(self, surf: pg.Surface):
+    def draw(self, *args):
         pass
 
 

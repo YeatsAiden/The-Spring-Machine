@@ -23,9 +23,10 @@ PATHS = {
     "tilesets": current_dir + "/assets/tilesets",
     "levels": current_dir + "/assets/levels",
     "fonts": current_dir + "/assets/fonts",
-    "buttons": current_dir + "/assets/buttons",
+    "buttons": current_dir + "/assets/ui/buttons",
     "objects": current_dir + "/assets/objects",
     "spawns": current_dir + "/assets/spawns",
     "player": current_dir + "/assets/player",
+    "cursor": current_dir + "/assets/ui/cursor.png"  # i dont know what im doing, okay??
 }
 
