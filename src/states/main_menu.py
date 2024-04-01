@@ -1,7 +1,14 @@
-from src.core_funcs import *
-from src.settings import *
+try:
+    from settings import *
+    from core_funcs import *
+    from ui import *
+except:
+    from src.settings import *
+    from src.core_funcs import *
+    from src.ui import *
+
 from .state import State
-from src.ui import *
+
 
 
 class MainMenu(State):

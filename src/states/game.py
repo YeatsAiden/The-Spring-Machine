@@ -1,9 +1,16 @@
-from src.core_funcs import *
-from src.settings import *
-from src.ui import *
+try:
+    from settings import *
+    from ui import *
+    from level import Level
+    from player import Player
+except:
+    from src.settings import *
+    from src.ui import *
+    from src.level import Level
+    from src.player import Player
+
 from .state import State
-from src.level import Level
-from src.player import Player
+
 
 
 class Game(State):
@@ -21,26 +28,34 @@ class Game(State):
 
         self.levels: dict[str, Level] = {file.split('.')[0]: Level(self.objects, self.spawns, self.tile_sets, PATHS['levels'] + "/" + file) for file in get_file_names(PATHS['levels']) if file.split('.')[1] == "json"}
 
-        self.tile_area: dict[str, set]
+        self.tile_area: dict[str, dict[str, pg.Rect | pg.FRect]]
         self.rect_area: dict[str, dict[str, pg.Rect | pg.FRect]]
 
         self.cam_pos = pg.Vector2(0, 0)
 
-        self.player = Player(PATHS["player"], [0, 0])
+        self.player = Player(PATHS["player"], [50, -100])
     
 
     def update(self, *args):
         dt = args[0]
+        current_time = args[2]
+        keys_pressed = args[3]
 
-        self.cam_pos[0] += (self.player.rect.x - self.cam_pos[0] - WINDOW_WIDTH/2)/10
-        self.cam_pos[1] += (self.player.rect.y - self.cam_pos[1] - WINDOW_HEIGHT/2)/10
+        self.cam_pos.x += (self.player.rect.x - self.cam_pos[0] - WINDOW_WIDTH/2)/10
+        self.cam_pos.y += (self.player.rect.y - self.cam_pos[1] - WINDOW_HEIGHT/2)/10
+
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
+        self.rect_area = self.levels["0"].get_rects(self.tile_area)
+
+        self.player.move(keys_pressed, dt, self.rect_area, current_time)
+
 
     def draw(self, *args):
         surf = args[0]
 
         surf.fill("black")
         self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
+        self.player.draw(surf, self.cam_pos)
 
 
     def event_loop(self, events):

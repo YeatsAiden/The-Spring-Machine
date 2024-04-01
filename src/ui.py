@@ -9,6 +9,7 @@ class Font:
 
         self.font = self.load_font(path, include, step)
     
+    
     def load_font(self, path: str, include: list[int, int, int], step: int):
         font_img = pg.image.load(path).convert()
         font_img.set_colorkey((0, 0, 0))
@@ -37,7 +38,8 @@ class Font:
                 font[character] = characters[len(font)]
         
         return font
-    
+
+
     def draw_text(self, surface: pg.Surface, text: str, x: int, y: int, space: int, size: int):
         x_pos = 0
         for letter in text:

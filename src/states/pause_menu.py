@@ -1,5 +1,8 @@
-from core_funcs import *
-from settings import *
+try:
+    from settings import *
+except:
+    from src.settings import *
+    
 from .state import State
 
 class PauseMenu(State):

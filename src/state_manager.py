@@ -31,6 +31,7 @@ class StateManager:
         self.fps: int = FPS
 
         self.cursor_image = pg.image.load(PATHS["cursor"]).convert_alpha()
+        self.keys_pressed = pg.key.get_pressed()
 
 
     def update(self, *args):
@@ -40,7 +41,7 @@ class StateManager:
         scale = args[3]
         xy_change = args[4]
 
-        self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change))
+        self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change), keys_pressed)
 
 
     def draw(self, surf: pg.Surface):
