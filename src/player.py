@@ -18,12 +18,13 @@ class Player(Entity):
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
         self.acceleration: int = 5
-        self.max_vel = 20
-        self.min_vel = 1
+        self.max_vel: int = 20
+        self.min_vel: int = 1
+        self.friction: float = 1.05
 
         self.max_fall_speed: int = 20
         self.g: float = 9.8
-        self.mass = 50
+        self.mass = 1
         self.jump_force = 6
         self.vel = pg.Vector2(0, 0)
         self.momentum = pg.Vector2(0, 0)
@@ -34,7 +35,12 @@ class Player(Entity):
             "crouching": False
         }
 
-        self.collision_state = {}
+        self.collision_state = {
+            "right": False,
+            "left": False,
+            "top": False,
+            "bottom": False
+        }
 
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
@@ -57,12 +63,15 @@ class Player(Entity):
 
         if jump:
             self.vel.y = 0
-            self.vel.y -= self.jump_force * dt
+            self.vel.y -= self.jump_force * dt * 20
         
         self.vel.y += self.g * self.mass * dt
 
+        if not self.input_states["moving"]:
+            self.vel.x /= self.friction
         if abs(self.vel.x) < self.min_vel and not self.input_states["moving"]:
             self.vel.x = 0
+
 
         self.vel.y = min(self.vel.y, self.max_fall_speed)
         self.vel.x = min(self.vel.x, self.max_vel)
@@ -90,13 +99,6 @@ class Player(Entity):
 
 
     def movement(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):
-
-        self.collision_state = {
-            "right": False,
-            "left": False,
-            "top": False,
-            "bottom": False
-        }
 
         self.rect.x += self.vel.x
         for rect in self.collision_check(rects):
@@ -127,8 +129,6 @@ class Player(Entity):
 
         if self.vel.x == 0 and self.vel.y == 0:
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, "idle", self.current_animation.animation_index)
-        
-        # print(self.collision_state['bottom'])
 
         if self.input_states['moving'] and self.collision_state['bottom'] and not (self.collision_state['right'] or self.collision_state['left']):
             
@@ -150,6 +150,8 @@ class Player(Entity):
             self.flip = False
         elif self.vel.x < 0:
             self.flip = True
+
+        self.flip = not self.flip if self.state == 'skid' else self.flip
         
         self.current_animation = self.animation[self.state]
     
