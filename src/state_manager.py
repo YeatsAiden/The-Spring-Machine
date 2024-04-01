@@ -81,6 +81,8 @@ class StateManager:
             self.update(self.dt, self.keys_pressed, self.current_time, self.scale, self.xy_change)
             self.draw(self.display)
 
+            self.swap_state()
+
             display_cp, self.xy_change, self.scale = resize_surface(self.window, self.display)
             self.window.blit(display_cp, self.xy_change)
             self.dt = self.clock.tick(FPS) / 1000

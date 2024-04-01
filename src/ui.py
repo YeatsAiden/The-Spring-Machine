@@ -55,13 +55,19 @@ class Button:
                  hover: pg.Surface | Animation,  # what to draw if you hover over the button      DUH
                  click: pg.Surface | Animation,  # what to draw if you click on the button
                  rect: pg.Rect,
-                 text: str = None) -> None:
+                 text: str = None,
+                 text_pos: tuple[int, int] = (0, 0),
+                 text_size: int = 1,
+                 text_space: int = 1) -> None:
 
         self.rect = rect
 
         self.still, self.hover, self.click = still, hover, click
 
         self.text = text
+        self.text_pos = text_pos
+        self.text_size = text_size
+        self.text_space = text_space
 
         self.pressed = False  # needed for knowing what type of image/animation to draw
         self.hovered = False
@@ -97,7 +103,7 @@ class Button:
             image = state.animate(False)
 
         if self.text is not None:
-            font.draw_text(image, self.text, 10, 10, 1, 1)
+            font.draw_text(image, self.text, self.text_pos[0], self.text_pos[1], self.text_space, self.text_size)
 
         surf.blit(image, self.rect)
 
@@ -112,5 +118,3 @@ class Button:
     def update(self, mouse_pos, mouse_pressed, current_time):
         self.pressed = self.check_click(mouse_pos, mouse_pressed, current_time)
         self.hovered = self.check_hover(mouse_pos)
-
-
