@@ -79,15 +79,15 @@ class Player(Entity):
         self.vel.y = min(self.vel.y, self.max_fall_speed)
         self.vel.x = max(min(self.vel.x, self.max_vel), -self.max_vel)
 
-        self.wall_jump(dt)
+        self.wall_jump(dt, current_time)
 
         self.movement(rects)
         self.anim_state_check(keys_pressed, current_time)
 
         
-    def wall_jump(self, dt):
+    def wall_jump(self, dt, current_time: float):
         can_wall_jump = (self.collision_state['right'] or self.collision_state['left']) and not self.collision_state['bottom']
-        if self.input_states['jumping'] and self.input_states['moving'] and can_wall_jump:
+        if self.input_states['jumping'] and self.input_states['moving'] and can_wall_jump and timer(current_time, self.time_since_last_collision, self.collision_cooldown):
             self.vel.y = 0
             self.vel.y -= self.jump_force * dt * 20
             self.vel.x += 200 * dt * (self.collision_state['left'] - self.collision_state['right'])
