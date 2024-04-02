@@ -120,3 +120,13 @@ class Button:
     def update(self, mouse_pos, mouse_pressed, current_time):
         self.pressed = self.check_click(mouse_pos, mouse_pressed, current_time)
         self.hovered = self.check_hover(mouse_pos)
+
+        if not self.pressed and isinstance(self.click, Animation):
+            self.click.reset()
+
+        if not self.hovered and isinstance(self.hover, Animation):
+            self.hover.reset()
+
+        if self.pressed or self.hovered:
+            if isinstance(self.still, Animation):
+                self.still.reset()

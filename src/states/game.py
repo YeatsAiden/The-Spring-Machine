@@ -32,7 +32,7 @@ class Game(State):
 
         self.cam_pos = pg.Vector2(0, 0)
 
-        self.player = Player(PATHS["player"], [50, -100])
+        self.player = Player(PATHS["player"], [100, -100])
     
 
     def update(self, *args):
@@ -42,6 +42,7 @@ class Game(State):
 
         self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
         self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
+
 
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
         self.rect_area = self.levels["0"].get_rects(self.tile_area)
