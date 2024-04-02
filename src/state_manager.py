@@ -3,6 +3,7 @@ from settings import *
 from states.main_menu import MainMenu
 from states.game import Game
 from states.pause_menu import PauseMenu
+from music_manager import *
 
 
 class StateManager:
@@ -33,6 +34,11 @@ class StateManager:
         self.cursor_image = pg.image.load(PATHS["cursor"]).convert_alpha()
         self.keys_pressed = pg.key.get_pressed()
 
+        # here you can update what music and sfx files are being loaded, note that they are going to be loaded all at one, so maybe this is a potential optimization possibility in the future
+        music_list = [PATHS["music"]+"/breaking-ice.wav", PATHS["music"]+"/funkin.wav", PATHS["music"]+"/melting-through.wav"]
+        sfx_list = []  # none so far
+        self.sound_manager = SoundManager(music_list, sfx_list)
+
 
     def update(self, *args):
         dt = args[0]
@@ -40,8 +46,9 @@ class StateManager:
         current_time = args[2]
         scale = args[3]
         xy_change = args[4]
+        sound_manager = args[5]
 
-        self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change), keys_pressed)
+        self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change), keys_pressed, sound_manager)
 
 
     def draw(self, surf: pg.Surface):
@@ -70,6 +77,7 @@ class StateManager:
             self.previous_state = self.current_state
             self.current_state = self.state.next_state
             self.state = self.states[self.current_state]()
+            self.sound_manager.stop_music()
 
 
     def run(self):
@@ -79,7 +87,7 @@ class StateManager:
 
             events = pg.event.get()
             self.event_loop(events)
-            self.update(self.dt, self.keys_pressed, self.current_time, self.scale, self.xy_change)
+            self.update(self.dt, self.keys_pressed, self.current_time, self.scale, self.xy_change, self.sound_manager)
             self.draw(self.display)
 
             self.swap_state()

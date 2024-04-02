@@ -10,6 +10,7 @@ except:
     from src.player import Player
 
 from .state import State
+import random
 
 
 class Game(State):
@@ -33,12 +34,17 @@ class Game(State):
         self.cam_pos = pg.Vector2(0, 0)
 
         self.player = Player(PATHS["player"], [100, -100])
+
+        self.music_playing = random.choice(["melting-through", "breaking-ice"])
     
 
     def update(self, *args):
         dt = args[0]
         current_time = args[1]
         keys_pressed = args[3]
+        sound_manager = args[4]
+
+        sound_manager.play_music(self.music_playing, 0.6)
 
         self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
         self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10

@@ -46,6 +46,9 @@ class MainMenu(State):
         dt = args[0]
         current_time = args[1]
         mouse_pos = args[2]
+        sound_manager = args[4]
+
+        sound_manager.play_music("funkin", 0.5)
 
         self.play_button.update(mouse_pos, pg.mouse.get_pressed(), current_time)
         self.settings_button.update(mouse_pos, pg.mouse.get_pressed(), current_time)

@@ -27,6 +27,7 @@ PATHS = {
     "objects": current_dir + "/assets/objects",
     "spawns": current_dir + "/assets/spawns",
     "player": current_dir + "/assets/player",
-    "cursor": current_dir + "/assets/ui/cursor.png"  # i dont know what im doing, okay??
+    "cursor": current_dir + "/assets/ui/cursor.png",  # i dont know what im doing, okay??
+    "music": current_dir + "/assets/music"
 }
 
