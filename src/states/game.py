@@ -5,12 +5,13 @@ try:
     from player import Player
     from enemies.glacierd import Glacierd
     from enemies.flowey import Flowey
+    from enemies.angle import Angel
 except:
     from src.settings import *
     from src.ui import *
     from src.level import Level
     from src.player import Player
-    from src.enemies.flowey import Flowey
+    from src.enemies.angle import Angel
 
 from .state import State
 import random
@@ -40,6 +41,7 @@ class Game(State):
 
         self.glacierd_test = Glacierd(PATHS["enemies"]+"/glacierd", [200, 50], "up")
         self.flowey_test = Flowey(PATHS["enemies"] + "/flowey", [200, 110])
+        self.angle_test = Angel(PATHS["enemies"], [200, 50], "left")
 
         self.music_playing = random.choice(["melting-through", "breaking-ice"])
     
@@ -62,6 +64,7 @@ class Game(State):
         self.player.move(keys_pressed, dt, self.rect_area, current_time)
         self.glacierd_test.move(dt, self.rect_area, current_time)
         self.flowey_test.update(self.player.rect.center, current_time)
+        self.angle_test.move(dt, self.rect_area, current_time)
 
     def draw(self, *args):
         surf = args[0]
@@ -71,6 +74,7 @@ class Game(State):
 
         self.glacierd_test.draw(surf, self.cam_pos)
         self.flowey_test.draw(surf, self.cam_pos)
+        self.angle_test.draw(surf, self.cam_pos)
 
         self.player.draw(surf, self.cam_pos)
 

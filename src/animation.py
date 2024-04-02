@@ -48,7 +48,7 @@ class Animation:
         if self.animation_index >= len(self.animation):
             self.animation_index = 0 if "linear" not in self.loop_type else self.animation_index-1
 
-        image = pg.transform.flip(self.animation[self.animation_index], flip, False)
+        image = pg.transform.flip(self.animation[self.animation_index], flip or "flipped" in self.loop_type, False)
 
         return image
 
