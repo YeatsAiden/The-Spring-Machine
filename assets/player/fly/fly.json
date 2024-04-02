@@ -1,9 +1,9 @@
 { "frames": {
    "0": {
-    "frame": { "x": 0, "y": 0, "w": 18, "h": 21 },
+    "frame": { "x": 0, "y": 0, "w": 8, "h": 21 },
     "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 18, "h": 21 },
+    "trimmed": true,
+    "spriteSourceSize": { "x": 4, "y": 0, "w": 8, "h": 21 },
     "sourceSize": { "w": 18, "h": 21 },
     "duration": 100
    }
@@ -13,7 +13,7 @@
   "version": "1.2.40-dev",
   "image": "fly.png",
   "format": "RGBA8888",
-  "size": { "w": 18, "h": 21 },
+  "size": { "w": 8, "h": 21 },
   "scale": "1",
   "frameTags": [
   ],

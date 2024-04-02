@@ -18,16 +18,15 @@ class Player(Entity):
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
         self.acceleration: int = 5
-        self.max_vel: int = 20
+        self.max_vel: int = 5
         self.min_vel: int = 1
         self.friction: float = 1.05
 
-        self.max_fall_speed: int = 20
+        self.max_fall_speed: int = 5
         self.g: float = 9.8
         self.mass = 1
-        self.jump_force = 6
+        self.jump_force = 12
         self.vel = pg.Vector2(0, 0)
-        self.momentum = pg.Vector2(0, 0)
 
         self.input_states = {
             "moving": False,
@@ -63,10 +62,9 @@ class Player(Entity):
 
         self.vel.x += self.acceleration * dt * (move_right - move_left)
 
-        if jump:
+        if jump and self.collision_state["bottom"]:
             self.vel.y = 0
             self.vel.y -= self.jump_force * dt * 20
-        
         if not self.collision_state["bottom"]:
             self.vel.y += self.g * self.mass * dt
 
@@ -74,21 +72,25 @@ class Player(Entity):
             self.vel.x /= self.friction
         if abs(self.vel.x) < self.min_vel and not self.input_states["moving"]:
             self.vel.x = 0
+        if abs(self.vel.y) < self.min_vel and self.collision_state["bottom"]:
+            self.vel.y = 0
 
 
         self.vel.y = min(self.vel.y, self.max_fall_speed)
-        self.vel.x = min(self.vel.x, self.max_vel)
+        self.vel.x = max(min(self.vel.x, self.max_vel), -self.max_vel)
 
-        self.movement(rects, current_time)
-        self.anim_state_check(keys_pressed)
+        self.wall_jump(dt)
+
+        self.movement(rects)
+        self.anim_state_check(keys_pressed, current_time)
 
         
     def wall_jump(self, dt):
         can_wall_jump = (self.collision_state['right'] or self.collision_state['left']) and not self.collision_state['bottom']
-        if self.player_input_state['jumping'] and (self.player_input_state['moving_right'] or self.player_input_state['moving_left']) and can_wall_jump:
-            self.momentum.y = 0
-            self.momentum.y -= self.jump_force * dt
-            self.momentum.x += 100 * dt * (self.collision_state['left'] - self.collision_state['right'])
+        if self.input_states['jumping'] and self.input_states['moving'] and can_wall_jump:
+            self.vel.y = 0
+            self.vel.y -= self.jump_force * dt * 20
+            self.vel.x += 200 * dt * (self.collision_state['left'] - self.collision_state['right'])
 
 
     def collision_check(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):
@@ -101,13 +103,11 @@ class Player(Entity):
         return collide_rects
 
 
-    def movement(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float):
-        self.collision_state = {
-            "right": False,
-            "left": False,
-            "top": False,
-            "bottom": False
-        }
+    def movement(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):
+        self.collision_state["right"] = False
+        self.collision_state["left"] = False
+        self.collision_state["top"] = False
+        self.collision_state["bottom"] = False
                     
         self.rect.x += self.vel.x
         for rect in self.collision_check(rects):
@@ -115,14 +115,12 @@ class Player(Entity):
                 self.collision_state["right"] = True
                 self.vel.x = 0
                 self.rect.right = rect.left
-                self.time_since_last_collision = time.time()
             elif self.vel.x < 0:
                self.collision_state["left"] = True
                self.vel.x = 0
                self.rect.left = rect.right
-               self.time_since_last_collision = time.time()
 
-        self.rect.y += self.vel.y
+        self.rect.y += round(self.vel.y)
         for rect in self.collision_check(rects):
             if self.vel.y > 0:
                 self.collision_state["bottom"] = True
@@ -133,10 +131,9 @@ class Player(Entity):
                 self.collision_state["top"] = True
                 self.vel.y = 0
                 self.rect.top = rect.bottom
-                self.time_since_last_collision = time.time()
 
 
-    def anim_state_check(self, keys_pressed):
+    def anim_state_check(self, keys_pressed, current_time: float):
         move_right = keys_pressed[pg.K_RIGHT] or keys_pressed[pg.K_d]
         move_left = keys_pressed[pg.K_LEFT] or keys_pressed[pg.K_a]
 
@@ -144,20 +141,19 @@ class Player(Entity):
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, "idle", self.current_animation.animation_index)
 
         if self.input_states['moving'] and self.collision_state['bottom'] and not (self.collision_state['right'] or self.collision_state['left']):
-            
-            self.state, self.current_animation.animation_index = 'run', self.current_animation.animation_index
+            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'run', self.current_animation.animation_index)
 
         if self.input_states['jumping']:
-            self.state, self.current_animation.animation_index = 'jump', self.current_animation.animation_index
+            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'jump', self.current_animation.animation_index)
 
         if self.vel.y < 0 and not self.collision_state["bottom"]:
-            self.state, self.current_animation.animation_index = 'fly', self.current_animation.animation_index
+            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'fly', self.current_animation.animation_index)
 
-        if not self.collision_state["bottom"] and self.vel.y > 0:
-            self.state, self.current_animation.animation_index = 'fall', self.current_animation.animation_index
+        if not self.collision_state["bottom"] and self.vel.y > 0 and timer(current_time, self.time_since_last_collision, self.collision_cooldown):
+            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'fall', self.current_animation.animation_index)
 
         if ((move_right and self.vel.x < 0) or (move_left and self.vel.x > 0)) and self.collision_state['bottom']:
-            self.state, self.current_animation.animation_index = 'skid', self.current_animation.animation_index
+            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'skid', self.current_animation.animation_index)
 
         if self.vel.x > 0:
             self.flip = False

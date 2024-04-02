@@ -1,9 +1,9 @@
 { "frames": {
    "0": {
-    "frame": { "x": 0, "y": 0, "w": 18, "h": 26 },
+    "frame": { "x": 0, "y": 0, "w": 10, "h": 20 },
     "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 18, "h": 26 },
+    "trimmed": true,
+    "spriteSourceSize": { "x": 5, "y": 2, "w": 10, "h": 20 },
     "sourceSize": { "w": 18, "h": 26 },
     "duration": 100
    }
@@ -13,7 +13,7 @@
   "version": "1.2.40-dev",
   "image": "fall.png",
   "format": "RGBA8888",
-  "size": { "w": 18, "h": 26 },
+  "size": { "w": 10, "h": 20 },
   "scale": "1",
   "frameTags": [
   ],
