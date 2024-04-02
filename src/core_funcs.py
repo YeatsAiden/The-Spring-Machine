@@ -82,14 +82,15 @@ def timer(current_time, prev_time, cool_down):
     return current_time - prev_time > cool_down
 
 
-def freeze_frame(condition: bool, freeze: bool, freeze_cooldown: int, time_since_freeze: float, current_time: float):
-    if condition:
+def freeze_frame(condition: bool, freeze: bool, freeze_duration: int, time_since_freeze: float, current_time: float):
+    if condition and not freeze:
         freeze = True
-    if freeze and timer(current_time, time_since_freeze, freeze_cooldown):
+        time_since_freeze = time.time()
+    if freeze and timer(current_time, time_since_freeze, freeze_duration):
         freeze = False
-        return freeze, True
+        return freeze, time_since_freeze, True
 
-    return freeze, False
+    return freeze, time_since_freeze, False
 
 
 def get_display_mouse_pos(scale, xy_change):
