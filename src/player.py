@@ -41,6 +41,8 @@ class Player(Entity):
             "top": False,
             "bottom": False
         }
+        self.time_since_last_collision: float = 0
+        self.collision_cooldown: float = 0.5
 
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
@@ -65,7 +67,8 @@ class Player(Entity):
             self.vel.y = 0
             self.vel.y -= self.jump_force * dt * 20
         
-        self.vel.y += self.g * self.mass * dt
+        if not self.collision_state["bottom"]:
+            self.vel.y += self.g * self.mass * dt
 
         if not self.input_states["moving"]:
             self.vel.x /= self.friction
@@ -76,7 +79,7 @@ class Player(Entity):
         self.vel.y = min(self.vel.y, self.max_fall_speed)
         self.vel.x = min(self.vel.x, self.max_vel)
 
-        self.movement(rects)
+        self.movement(rects, current_time)
         self.anim_state_check(keys_pressed)
 
         
@@ -98,18 +101,26 @@ class Player(Entity):
         return collide_rects
 
 
-    def movement(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):
-
+    def movement(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float):
+        self.collision_state = {
+            "right": False,
+            "left": False,
+            "top": False,
+            "bottom": False
+        }
+                    
         self.rect.x += self.vel.x
         for rect in self.collision_check(rects):
             if self.vel.x > 0:
                 self.collision_state["right"] = True
                 self.vel.x = 0
                 self.rect.right = rect.left
+                self.time_since_last_collision = time.time()
             elif self.vel.x < 0:
                self.collision_state["left"] = True
                self.vel.x = 0
                self.rect.left = rect.right
+               self.time_since_last_collision = time.time()
 
         self.rect.y += self.vel.y
         for rect in self.collision_check(rects):
@@ -117,10 +128,12 @@ class Player(Entity):
                 self.collision_state["bottom"] = True
                 self.vel.y = 0
                 self.rect.bottom = rect.top
+                self.time_since_last_collision = time.time()
             elif self.vel.y < 0:
                 self.collision_state["top"] = True
                 self.vel.y = 0
                 self.rect.top = rect.bottom
+                self.time_since_last_collision = time.time()
 
 
     def anim_state_check(self, keys_pressed):

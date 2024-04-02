@@ -81,7 +81,7 @@ class Button:
         click = False
 
         # check mouseover and clicked conditions
-        if self.rect.collidepoint(mouse_pos) and mouse_pressed[0] and (current_time - self.time_since_click) > self.click_cooldown:
+        if self.rect.collidepoint(mouse_pos) and mouse_pressed[0] and timer(current_time, self.time_since_click, self.click_cooldown):
             self.time_since_click = current_time
             click = True
         # return if clicked

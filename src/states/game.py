@@ -12,7 +12,6 @@ except:
 from .state import State
 
 
-
 class Game(State):
     def __init__(self) -> None:
         super().__init__()
@@ -38,11 +37,11 @@ class Game(State):
 
     def update(self, *args):
         dt = args[0]
-        current_time = args[2]
+        current_time = args[1]
         keys_pressed = args[3]
 
-        self.cam_pos.x += (self.player.rect.x - self.cam_pos[0] - WINDOW_WIDTH/2)/10
-        self.cam_pos.y += (self.player.rect.y - self.cam_pos[1] - WINDOW_HEIGHT/2)/10
+        self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
+        self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
 
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
         self.rect_area = self.levels["0"].get_rects(self.tile_area)
