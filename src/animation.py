@@ -3,17 +3,24 @@ from core_funcs import *
 
 
 class Animation:
-    def __init__(self, spritesheet_path: str, config: dict = None) -> None:
+    def __init__(self,
+                 spritesheet_path: str,
+                 config: dict = None,
+                 loop_type: str = "loop") -> None:
         self.spritesheet_path = spritesheet_path
         self.config = config
+        self.loop_type = loop_type.split()
 
-        if self.config == None:
+        if self.config is None:
             raise Exception("WHERE CONFIG >>::(((")
         else:
             self.animation: list[pg.Surface] = self.load_animation(self.spritesheet_path, self.config)
 
+        if "reversed" in self.loop_type:
+            self.animation = self.animation[::-1]
+
         self.image: pg.Surface = self.animation[0]
-        self.animation_index: int = 0
+        self.animation_index: int = 0 if "reversed" in self.loop_type else (len(self.animation)-1)
 
         self.freeze_time: bool = False
         self.freeze: bool = False
@@ -34,7 +41,16 @@ class Animation:
     
 
     def animate(self, flip: bool):
+        image: pg.Surface
+
         self.animation_index += 1
-        self.animation_index = 0 if self.animation_index == len(self.animation) else self.animation_index
+
+        if self.animation_index >= len(self.animation):
+            self.animation_index = 0 if "linear" not in self.loop_type else self.animation_index-1
+
         image = pg.transform.flip(self.animation[self.animation_index], flip, False)
+
         return image
+
+    def reset(self):
+        self.animation_index = 0

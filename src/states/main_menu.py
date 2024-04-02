@@ -20,19 +20,24 @@ class MainMenu(State):
         self.smol_font = Font(PATHS["fonts"] + "/" + "smol_font.png", [1, 2, 3], 1)
 
         # main menu
-        button_hover_anim = Animation(current_dir + "/assets/ui/buttons/normal/button-sheet.png", load_json(current_dir + "/assets/ui/buttons/normal/button.json"))
-        self.play_button = Button(button_hover_anim.animation[0].copy(),
-                                  button_hover_anim,
-                                  button_hover_anim.animation[-1].copy(),
-                                  button_hover_anim.animation[0].get_rect(center=(DISPLAY_WIDTH // 2, 100)),
+        play_button_hover_anim = Animation(current_dir + "/assets/ui/buttons/normal/button-sheet.png", load_json(current_dir + "/assets/ui/buttons/normal/button.json"), loop_type="linear")
+        play_reversed_button_hover_anim = Animation(current_dir + "/assets/ui/buttons/normal/button-sheet.png", load_json(current_dir + "/assets/ui/buttons/normal/button.json"), loop_type="reversed linear")
+
+        settings_button_hover_anim = Animation(current_dir + "/assets/ui/buttons/normal/button-sheet.png", load_json(current_dir + "/assets/ui/buttons/normal/button.json"), loop_type="linear")
+        settings_reversed_button_hover_anim = Animation(current_dir + "/assets/ui/buttons/normal/button-sheet.png", load_json(current_dir + "/assets/ui/buttons/normal/button.json"), loop_type="reversed linear")
+
+        self.play_button = Button(play_reversed_button_hover_anim,
+                                  play_button_hover_anim,
+                                  play_button_hover_anim.animation[-1].copy(),
+                                  play_button_hover_anim.animation[0].get_rect(center=(DISPLAY_WIDTH // 2, 100)),
                                   "play",
                                   (13, 5),
                                   2)
 
-        self.settings_button = Button(button_hover_anim.animation[0].copy(),
-                                      button_hover_anim,
-                                      button_hover_anim.animation[-1].copy(),
-                                      button_hover_anim.animation[0].get_rect(center=(DISPLAY_WIDTH // 2, 130)),
+        self.settings_button = Button(settings_reversed_button_hover_anim,
+                                      settings_button_hover_anim,
+                                      settings_button_hover_anim.animation[-1].copy(),
+                                      settings_button_hover_anim.animation[0].get_rect(center=(DISPLAY_WIDTH // 2, 130)),
                                       "settings",
                                       (7, 5),
                                       1.4)
