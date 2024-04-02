@@ -43,6 +43,10 @@ class Player(Entity):
         self.time_since_last_collision: float = 0
         self.collision_cooldown: float = 0.5
 
+        self.freeze_frame: bool = False
+        self.freeze_cooldown: float = 0.2
+        self.freeze_time: float = time.time()
+
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
         self.image = self.current_animation.animate(self.flip)
@@ -62,13 +66,19 @@ class Player(Entity):
 
         self.vel.x += self.acceleration * dt * (move_right - move_left)
 
-        if jump and self.collision_state["bottom"]:
+        if jump and self.collision_state["bottom"] and not self.freeze_frame:
+            self.freeze_time = time.time()
+
+        self.freeze_frame, jump_condition = freeze_frame(jump and self.collision_state["bottom"], self.freeze_frame, self.freeze_cooldown, self.freeze_time, current_time)
+
+        if jump_condition:
             self.vel.y = 0
             self.vel.y -= self.jump_force * dt * 20
+
         if not self.collision_state["bottom"]:
             self.vel.y += self.g * self.mass * dt
 
-        if not self.input_states["moving"]:
+        if not self.input_states["moving"] or self.freeze_frame:
             self.vel.x /= self.friction
         if abs(self.vel.x) < self.min_vel and not self.input_states["moving"]:
             self.vel.x = 0
@@ -143,7 +153,7 @@ class Player(Entity):
         if self.input_states['moving'] and self.collision_state['bottom'] and not (self.collision_state['right'] or self.collision_state['left']):
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'run', self.current_animation.animation_index)
 
-        if self.input_states['jumping']:
+        if self.input_states['jumping'] or self.freeze_frame:
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'jump', self.current_animation.animation_index)
 
         if self.vel.y < 0 and not self.collision_state["bottom"]:
@@ -152,7 +162,7 @@ class Player(Entity):
         if not self.collision_state["bottom"] and self.vel.y > 0 and timer(current_time, self.time_since_last_collision, self.collision_cooldown):
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'fall', self.current_animation.animation_index)
 
-        if ((move_right and self.vel.x < 0) or (move_left and self.vel.x > 0)) and self.collision_state['bottom']:
+        if ((move_right and self.vel.x < 0) or (move_left and self.vel.x > 0)) and self.collision_state['bottom'] and not self.state == "jump":
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'skid', self.current_animation.animation_index)
 
         if self.vel.x > 0:

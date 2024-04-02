@@ -59,7 +59,7 @@ class Game(State):
     def draw(self, *args):
         surf = args[0]
 
-        surf.fill("black")
+        surf.fill("#4f8fba")
         self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
         self.player.draw(surf, self.cam_pos)
 
