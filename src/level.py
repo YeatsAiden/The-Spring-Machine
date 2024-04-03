@@ -25,6 +25,8 @@ class Level:
         self.rect_areas = {layer: set(self.rects[layer]) for layer in self.rects}
         self.tile_areas = {layer: set(self.level[layer]) for layer in self.level}
 
+        self.spawns = self.make_spawns_dict(self.level)
+
     def make_rects_dict(self, level: dict):
         rects = {}
         for layer in level:
@@ -43,9 +45,7 @@ class Level:
             spawns[layer] = {}
             for tile in level[layer]:
                 if level[layer][tile]["type"] == "spawns":
-                    x, y = map(int, tile.split(":"))
                     spawns[layer][tile] = level[layer][tile]["id"]
-                    
         return spawns
     
 

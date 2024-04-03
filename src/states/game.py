@@ -37,19 +37,14 @@ class Game(State):
         self.smol_font = Font(PATHS["fonts"] + "/" + "smol_font.png", [1, 2, 3], 1)
 
         self.levels: dict[str, Level] = {file.split('.')[0]: Level(self.objects, self.spawns, self.tile_sets, PATHS['levels'] + "/" + file) for file in get_file_names(PATHS['levels']) if file.split('.')[1] == "json"}
+        self.current_level = self.levels["0"]
+
+        self.load_entity_position_from_level_data(self.current_level)
 
         self.tile_area: dict[str, dict[str, pg.Rect | pg.FRect]]
         self.rect_area: dict[str, dict[str, pg.Rect | pg.FRect]]
 
         self.cam_pos = pg.Vector2(0, 0)
-
-        self.player = Player(PATHS["player"], [100, -100])
-
-        self.glacierds = [Glacierd(PATHS["enemies"]+"/glacierd", [200, 50], "up")]
-        self.floweys = [Flowey(PATHS["enemies"] + "/flowey", [200, 110])]
-        self.angles = [Angel(PATHS["enemies"], [200, 50], "left")]
-        self.angle_bombs = []
-        self.flowey_spores = []
 
         self.music_playing = random.choice(["melting-through", "breaking-ice"])
     
@@ -167,5 +162,28 @@ class Game(State):
             return False
 
         return True
+
+    def load_entity_position_from_level_data(self, level_data):
+        self.glacierds = []
+        self.floweys = []
+        self.angles = []
+        self.angle_bombs = []
+        self.flowey_spores = []
+
+        entities = {"flowey": (Flowey, self.floweys),
+                    "glacierd": (Glacierd, self.glacierds),
+                    "angle": (Angel, self.angles)}
+
+        for _, spawns in level_data.spawns.items():
+            for pos, spawn in spawns.items():
+                pos = list(map(int, pos.split(":")))
+                pos[0] *= TILE_SIZE
+                pos[1] *= TILE_SIZE
+                spawn = spawn.split("_")[0]
+
+                if spawn == "player":
+                    self.player = Player(PATHS["player"], pos)
+                else:
+                    entities[spawn][1].append(entities[spawn][0](PATHS[spawn], pos))
 
 

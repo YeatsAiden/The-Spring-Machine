@@ -39,8 +39,10 @@ class Flowey(Entity):
     def update(self, player_pos, current_time: int, in_bounds: bool):
         self.time_to_spit_spore = False
 
+        player_in_range = dist(player_pos, self.rect.center) < self.activation_range
+
         if in_bounds:
-            if current_time - self.time_since_last_attack > self.cooldown:
+            if current_time - self.time_since_last_attack > self.cooldown and player_in_range:
                 self.time_to_spit_spore = True
                 self.time_since_last_attack = current_time
 
