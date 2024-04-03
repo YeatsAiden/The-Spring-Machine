@@ -29,6 +29,9 @@ PATHS = {
     "player": current_dir + "/assets/player",
     "cursor": current_dir + "/assets/ui/cursor.png",  # i dont know what im doing, okay?? - Andrey | ok ._. - Aiden
     "music": current_dir + "/assets/music",
-    "enemies": current_dir + "/assets/enemies"
+    "enemies": current_dir + "/assets/enemies",
+    "flowey": current_dir + "/assets/enemies/flowey",
+    "glacierd": current_dir + "/assets/enemies/glacierd",
+    "angle": current_dir + "/assets/enemies"
 }
 
