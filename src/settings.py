@@ -32,6 +32,7 @@ PATHS = {
     "enemies": current_dir + "/assets/enemies",
     "flowey": current_dir + "/assets/enemies/flowey",
     "glacierd": current_dir + "/assets/enemies/glacierd",
-    "angle": current_dir + "/assets/enemies"
+    "angle": current_dir + "/assets/enemies",
+    "backgrounds": current_dir + "/assets/background"
 }
 

@@ -71,8 +71,9 @@ class Game(State):
     def draw(self, *args):
         surf = args[0]
         current_time = args[1]
+        mega_cool_art = args[2]
 
-        surf.fill("#4f8fba")
+        surf.blit(mega_cool_art, (0, 0))
         self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
 
         self.draw_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, surf, self.cam_pos, current_time)
