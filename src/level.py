@@ -38,14 +38,15 @@ class Level:
 
 
     def make_spawns_dict(self, level: dict):
-        rects = {}
+        spawns = {}
         for layer in level:
+            spawns[layer] = {}
             for tile in level[layer]:
-                if level[layer][tile]["collision"]:
+                if level[layer][tile]["type"] == "spawns":
                     x, y = map(int, tile.split(":"))
-                    rect = pg.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                    rects[layer][tile] = rect
-        return rects
+                    spawns[layer][tile] = level[layer][tile]["id"]
+                    
+        return spawns
     
 
     def get_area(self, cam_pos: pg.Vector2):

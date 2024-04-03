@@ -18,7 +18,7 @@ class Player(Entity):
         self.image = self.current_animation.image
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
-        self.acceleration: int = 2
+        self.acceleration: int = 3
         self.friction: float = 1.05
 
         self.max_fall_speed: int = 5
@@ -112,7 +112,7 @@ class Player(Entity):
         if not self.collision_state["bottom"]:
             self.vel.y += self.g * self.mass * dt
 
-        if not self.input_states["moving"] or self.input_states["crouching"] or self.input_states["jumping"]:
+        if not self.input_states["moving"] or self.input_states["crouching"] or (self.input_states["jumping"] and self.collision_state["bottom"]):
             self.vel.x /= self.friction
         if abs(self.vel.x) < self.min_vel and not self.input_states["moving"]:
             self.vel.x = 0
@@ -210,18 +210,16 @@ class Action:
 
         self.action_cooldown: float = action_cooldown
         self.time_since_action: float = 0
-
-        self.done: bool = False
     
 
     def action_condition(self, condition: bool, current_time: float):
-        self.done = False
         self.freeze_frame, self.time_since_freeze, action_condition = freeze_frame(
             condition and timer(current_time, self.time_since_action, self.action_cooldown),
             self.freeze_frame,
             self.freeze_duration,
             self.time_since_freeze,
-            current_time)
+            current_time
+        )
         
         if action_condition:
             self.time_since_action = time.time()
@@ -244,7 +242,7 @@ class Run(Action):
     
 
 class Jump(Action):
-    def __init__(self, freeze_duration: float = 0.2, action_cooldown: float = 1) -> None:
+    def __init__(self, freeze_duration: float = 0.1, action_cooldown: float = 0.4) -> None:
         super().__init__(freeze_duration, action_cooldown)
     
 
@@ -268,7 +266,7 @@ class WallJump(Action):
 
 
 class LongJump(Action):
-    def __init__(self, freeze_duration: float = 0.4, action_cooldown: float = 1) -> None:
+    def __init__(self, freeze_duration: float = 0, action_cooldown: float = 1) -> None:
         super().__init__(freeze_duration, action_cooldown)
     
 
