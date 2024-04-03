@@ -20,7 +20,7 @@ class Animation:
             self.animation = self.animation[::-1]
 
         self.image: pg.Surface = self.animation[0]
-        self.animation_index: int = 0 if "reversed" in self.loop_type else (len(self.animation)-1)
+        self.animation_index: int = 0 if "reversed" not in self.loop_type else (len(self.animation)-1)
 
         self.freeze_time: bool = False
         self.freeze: bool = False

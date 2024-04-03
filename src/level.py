@@ -8,8 +8,7 @@ class Level:
             objects: dict[str, pg.Surface],
             spawns: dict[str, pg.Surface],
             tile_sets: dict[str, dict[int, pg.Surface]],
-            level_path: str
-        ) -> None:
+            level_path: str) -> None:
 
         self.level = {}
         with open(level_path) as f:
