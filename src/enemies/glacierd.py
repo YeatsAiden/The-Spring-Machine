@@ -23,7 +23,7 @@ class Glacierd(Entity):
         self.possible_states = ["left", "right", "up", "down", "turn", "flip", "turn-back", "flip-back"]
 
         if starting_direction not in self.possible_states:
-            raise Exception("NO IDLE FOR GLACIERD")
+            raise Exception(f"NO SUCH STATE FOR GLACIERD: {starting_direction}")
 
         self.animation_config: dict[str, dict] = {dir: load_json(image_path + "/" + dir + "/" + dir + ".json") for dir in get_dir_names(image_path)}
         self.animation: dict[str, Animation] = {dir: Animation(image_path + "/" + dir + "/" + dir + ".png", self.animation_config[dir]) for dir in get_dir_names(image_path)}
@@ -50,9 +50,6 @@ class Glacierd(Entity):
             "top": False,
             "bottom": False
         }
-
-        self.time_since_last_collision: float = 0
-        self.collision_cooldown: float = 0.5
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time: float):
         self.image = self.current_animation.animate(self.flip)
@@ -113,7 +110,6 @@ class Glacierd(Entity):
                 self.collision_state["bottom"] = True
                 self.vel.y = 0
                 self.rect.bottom = rect.top
-                self.time_since_last_collision = time.time()
             elif self.vel.y < 0:
                 self.collision_state["top"] = True
                 self.vel.y = 0

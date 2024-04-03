@@ -40,9 +40,6 @@ class Angel(Entity):
             "bottom": False
         }
 
-        self.time_since_last_collision: float = 0
-        self.collision_cooldown: float = 0.5
-
         self.last_bomb_spawn_time = 0
         self.bomb_spawn_cooldown = 5  # secs
         self.time_to_spawn_a_bomb = False
@@ -108,7 +105,6 @@ class Angel(Entity):
                 self.collision_state["bottom"] = True
                 self.vel.y = 0
                 self.rect.bottom = rect.top
-                self.time_since_last_collision = time.time()
             elif self.vel.y < 0:
                 self.collision_state["top"] = True
                 self.vel.y = 0

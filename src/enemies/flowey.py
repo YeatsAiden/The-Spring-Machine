@@ -28,17 +28,23 @@ class Flowey(Entity):
         self.image = self.current_animation.image
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
+        self.time_since_last_attack = 0
+        self.cooldown = 2  # secs
+        self.time_to_spit_spore = False
+
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
         self.image = self.current_animation.animate(self.flip)
         surf.blit(self.image, self.rect.topleft - cam_pos)
 
     def update(self, player_pos, current_time: int, in_bounds: bool):
-        self.try_attacking(current_time)
+        self.time_to_spit_spore = False
+
+        if in_bounds:
+            if current_time - self.time_since_last_attack > self.cooldown:
+                self.time_to_spit_spore = True
+                self.time_since_last_attack = current_time
 
         self.anim_state_check(player_pos)
-
-    def try_attacking(self, current_time):
-        pass # im too lazy to do this rn
 
     def anim_state_check(self, player_pos):
         if dist(player_pos, self.pos) < self.activation_range and self.state == "cute":

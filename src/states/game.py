@@ -7,6 +7,7 @@ try:
     from enemies.flowey import Flowey
     from enemies.angle import Angel
     from enemies.angle_bomb import AngelBomb
+    from enemies.flowey_spore import FloweySpore
 except:
     from src.settings import *
     from src.ui import *
@@ -16,6 +17,7 @@ except:
     from src.enemies.flowey import Flowey
     from src.enemies.angle import Angel
     from src.enemies.angle_bomb import AngelBomb
+    from src.enemies.flowey_spore import FloweySpore
 
 from .state import State
 import random
@@ -98,7 +100,7 @@ class Game(State):
                         glacierds: list[Glacierd],
                         angles: list[Angel],
                         angle_bombs: list[AngelBomb],
-                        flowey_spores,
+                        flowey_spores: list[FloweySpore],
                         player_pos,
                         current_time,
                         dt,
@@ -108,6 +110,9 @@ class Game(State):
         for flowey in floweys:
             flowey.update(player_pos, current_time, self.check_entity_in_bounds(cam_pos, flowey))
 
+            if flowey.time_to_spit_spore:
+                flowey_spores.append(FloweySpore(PATHS["enemies"], flowey.rect.center))
+
         for glacierd in glacierds:
             glacierd.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, glacierd))
 
@@ -115,8 +120,9 @@ class Game(State):
             angle.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, angle))
 
             if angle.time_to_spawn_a_bomb and self.check_entity_in_bounds(cam_pos, angle):
-                angle_bombs.append(AngelBomb(PATHS["enemies"]+"/", angle.rect.center))
+                angle_bombs.append(AngelBomb(PATHS["enemies"], angle.rect.center))
 
+        # angle bombs special stuff
         angle_bombs_to_exterminate = []
         for i, angle_bomb in enumerate(angle_bombs):
             angle_bomb.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, angle_bomb))
@@ -125,6 +131,17 @@ class Game(State):
 
         for i in angle_bombs_to_exterminate[::-1]:  # hard to explain why reverse, but it is required
             angle_bombs.pop(i)
+
+        # flowey spores special stuff
+        spores_to_eliminate = []
+        for i, spore in enumerate(flowey_spores):
+            spore.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, spore), player_pos)
+
+            if spore.state == "not existing":
+                spores_to_eliminate.append(i)
+
+        for i in spores_to_eliminate[::-1]:
+            flowey_spores.pop(i)
 
     def draw_entities(self, floweys, glacierds, angles, angle_bombs, flowey_spores, surf, cam_pos, current_time):
         for flowey in floweys:
@@ -138,6 +155,9 @@ class Game(State):
 
         for angle_bomb in angle_bombs:
             angle_bomb.draw(surf, cam_pos, current_time)
+
+        for spore in flowey_spores:
+            spore.draw(surf, cam_pos, current_time)
 
     def check_entity_in_bounds(self, cam_pos, entity):
         if not (cam_pos.y < (entity.rect.y + entity.rect.h) and entity.rect.y < (cam_pos.y + DISPLAY_HEIGHT)):

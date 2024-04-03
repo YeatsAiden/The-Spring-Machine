@@ -19,8 +19,8 @@ class AngelBomb(Entity):
 
         self.possible_states = ["not exploded (nice)", "exploding (not nice)", "done exploding"]
 
-        self.animation_config = load_json(image_path + "angle_bomb/angle_bomb.json")
-        self.animation = Animation(image_path + "angle_bomb/angle_bomb.png", self.animation_config)
+        self.animation_config = load_json(image_path + "/angle_bomb/angle_bomb.json")
+        self.animation = Animation(image_path + "/angle_bomb/angle_bomb.png", self.animation_config)
 
         self.pos = pos
         self.current_animation = self.animation
@@ -38,18 +38,15 @@ class AngelBomb(Entity):
             "bottom": False
         }
 
-        self.time_since_last_collision: float = 0
-        self.collision_cooldown: float = 0.5
-
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time: float):
         if self.state == "not exploded (nice)":
             self.image = self.current_animation.animate(self.flip)
 
-            self.image = pg.transform.scale_by(self.image, 1+sin(current_time*10)/10)
-            rect = self.image.get_rect(center=self.rect.center)
+            image = pg.transform.scale_by(self.image, 1+sin(current_time*10)/10)
+            rect = image.get_rect(center=self.rect.center)
             pos = rect.topleft - cam_pos
 
-            surf.blit(self.image, pos)
+            surf.blit(image, pos)
         else:
             pass  # we are awaiting for your particle manager to finish this explosion part
 
@@ -79,12 +76,9 @@ class AngelBomb(Entity):
                 self.vel.y = 0
                 self.state = "exploding (not nice)"
                 self.rect.bottom = rect.top
-                self.time_since_last_collision = time.time()
 
     def anim_state_check(self, in_bounds: bool):
         if self.state == "not exploded (nice)" and self.current_animation.animation_index == len(self.current_animation.animation)-1:
-            print(self.state == "not exploded (nice)", self.current_animation.animation_index)
-
             self.state = "exploding (not nice)"
             self.current_animation.animation_index = 0
 
