@@ -39,10 +39,10 @@ class Level:
     def get_area(self, cam_pos: pg.Vector2):
         area = {}
 
-        start_row = int(cam_pos[1] // TILE_SIZE)
-        end_row = int((cam_pos[1] + DISPLAY_HEIGHT) // TILE_SIZE) + 1
-        start_col = int(cam_pos[0] // TILE_SIZE)
-        end_col = int((cam_pos[0] + DISPLAY_WIDTH) // TILE_SIZE) + 1
+        start_row = int(cam_pos.y // TILE_SIZE)
+        end_row = int((cam_pos.y + DISPLAY_HEIGHT) // TILE_SIZE) + 1
+        start_col = int(cam_pos.x // TILE_SIZE)
+        end_col = int((cam_pos.x + DISPLAY_WIDTH) // TILE_SIZE) + 1
 
         positions = {f"{x}:{y}" for y in range(start_row, end_row + 1) for x in range(start_col, end_col + 1)}
 

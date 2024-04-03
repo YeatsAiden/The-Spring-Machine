@@ -18,16 +18,17 @@ class Player(Entity):
         self.image = self.current_animation.image
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
-        self.acceleration: int = 5
-        self.max_vel: int = 5
-        self.min_vel: int = 1
+        self.acceleration: int = 2
         self.friction: float = 1.05
 
         self.max_fall_speed: int = 5
         self.g: float = 9.8
         self.mass = 1
         self.jump_force = 12
+
         self.vel = pg.Vector2(0, 0)
+        self.max_vel: int = 5
+        self.min_vel: int = 1
 
         self.input_states: dict[str, bool] = {
             "moving": False,
@@ -50,6 +51,8 @@ class Player(Entity):
             "wall_jump": WallJump(),
             "long_jump": LongJump()
         }
+
+        self.combo = Combo()
 
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
@@ -75,33 +78,36 @@ class Player(Entity):
         self.input_states["moving"], self.input_states["jumping"], self.input_states["crouching"] = self.get_input_state(keys_pressed)
 
         self.facing = self.get_facing()
+
         # Run Action
         if self.actions["run"].action_condition(
             self.input_states["moving"],
             current_time
             ):
             self.vel = self.actions["run"].action(dt, self.vel, self.input_states["moving"], self.acceleration)
+
         # Jump Action
         if self.actions["jump"].action_condition(
             self.input_states["jumping"] and self.collision_state["bottom"] and not self.input_states["crouching"],
             current_time
             ):
             self.vel = self.actions["jump"].action(dt, self.vel, self.jump_force)
+
         # Wall jump action
         can_wall_jump = (self.collision_state['right'] or self.collision_state['left']) and not self.collision_state['bottom'] and self.input_states['jumping'] and self.input_states['moving'] and timer(current_time, self.time_since_last_collision, self.collision_cooldown)
         if self.actions["wall_jump"].action_condition(
             can_wall_jump,
             current_time
             ):
-            self.vel = self.actions["wall_jump"].action(dt, self.vel, self.facing, self.jump_force)
+            self.vel = self.actions["wall_jump"].action(dt, self.vel, self.collision_state, self.jump_force)
+
         # Long jump Action
+        self.combo.start_combo(self.input_states["crouching"] and self.collision_state["bottom"])
         if self.actions["long_jump"].action_condition(
-            self.input_states["crouching"] and self.input_states["jumping"] and self.collision_state["bottom"],
+            self.combo.combo_condition(current_time, self.input_states["jumping"]),
             current_time
             ):
             self.vel = self.actions["long_jump"].action(dt, self.vel, self.facing, self.jump_force)
-
-
 
         if not self.collision_state["bottom"]:
             self.vel.y += self.g * self.mass * dt
@@ -168,7 +174,7 @@ class Player(Entity):
         if self.input_states['moving'] and self.collision_state['bottom'] and not (self.collision_state['right'] or self.collision_state['left']):
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'run', self.current_animation.animation_index)
 
-        if self.input_states['jumping']:
+        if self.input_states['jumping'] or self.input_states['crouching']:
             self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'jump', self.current_animation.animation_index)
 
         if self.vel.y < 0 and not self.collision_state["bottom"]:
@@ -197,18 +203,26 @@ class Player(Entity):
     
 
 class Action:
-    def __init__(self, freeze_duration: float = 0) -> None:
+    def __init__(self, freeze_duration: float = 0, action_cooldown: float = 0) -> None:
         self.freeze_frame: bool = False
         self.freeze_duration: float = freeze_duration
         self.time_since_freeze: float = 0
+
+        self.action_cooldown: float = action_cooldown
+        self.time_since_action: float = 0
     
 
     def action_condition(self, condition: bool, current_time: float):
-        self.freeze_frame, self.time_since_freeze, action_condition = freeze_frame(condition,
-                                                            self.freeze_frame,
-                                                            self.freeze_duration,
-                                                            self.time_since_freeze,
-                                                            current_time)
+        self.freeze_frame, self.time_since_freeze, action_condition = freeze_frame(
+            condition and timer(current_time, self.time_since_action, self.action_cooldown),
+            self.freeze_frame,
+            self.freeze_duration,
+            self.time_since_freeze,
+            current_time)
+        
+        if action_condition:
+            self.time_since_action = time.time()
+
         return action_condition
     
 
@@ -217,8 +231,8 @@ class Action:
 
 
 class Run(Action):
-    def __init__(self, freeze_duration: float = 0) -> None:
-        super().__init__(freeze_duration)
+    def __init__(self, freeze_duration: float = 0, action_cooldown: float = 0) -> None:
+        super().__init__(freeze_duration, action_cooldown)
     
 
     def action(self, dt: float, vel: pg.Vector2, moving: int, acceleration: int):
@@ -227,8 +241,8 @@ class Run(Action):
     
 
 class Jump(Action):
-    def __init__(self, freeze_duration: float = 0.2) -> None:
-        super().__init__(freeze_duration)
+    def __init__(self, freeze_duration: float = 0.2, action_cooldown: float = 1) -> None:
+        super().__init__(freeze_duration, action_cooldown)
     
 
     def action(self, dt: float, vel: pg.Vector2, jump_force: int):
@@ -238,20 +252,22 @@ class Jump(Action):
 
 
 class WallJump(Action):
-    def __init__(self, freeze_duration: float = 0.05) -> None:
-        super().__init__(freeze_duration)
+    def __init__(self, freeze_duration: float = 0, action_cooldown: float = 0) -> None:
+        super().__init__(freeze_duration, action_cooldown)
     
 
-    def action(self, dt: float, vel: pg.Vector2, facing: int, jump_force: int):
+    def action(self, dt: float, vel: pg.Vector2, collision_state: dict[str, bool], jump_force: int):
         vel.y = 0
         vel.y -= jump_force * dt * 20
-        vel.x += 200 * dt * -facing
+        direction = collision_state["left"] - collision_state["right"]
+        print(collision_state["left"], collision_state["right"])
+        vel.x += 200 * dt * direction
         return vel
 
 
 class LongJump(Action):
-    def __init__(self, freeze_duration: float = 0.3) -> None:
-        super().__init__(freeze_duration)
+    def __init__(self, freeze_duration: float = 0.3, action_cooldown: float = 1) -> None:
+        super().__init__(freeze_duration, action_cooldown)
     
 
     def action(self, dt: float, vel: pg.Vector2, facing: int, jump_force: int):
@@ -260,3 +276,32 @@ class LongJump(Action):
         vel.y -= jump_force * dt * 10
         return vel
 
+
+class Combo:
+    def __init__(self, combo_length: int = 1) -> None:
+        self.combo: int = False
+        self.started_combo: bool = False
+        self.time_since_combo: float = 0
+        self.combo_length: int = combo_length
+        self.current_combo: list = []
+    
+
+    def start_combo(self, start_input: bool):
+        if start_input and not self.started_combo:
+            self.time_since_combo = time.time()
+            self.started_combo = True
+            self.current_combo = {}
+    
+
+    def combo_condition(self, current_time: float, *keys):
+        if not timer(current_time, self.time_since_combo, self.combo_length) and not self.combo:
+            for i, key in enumerate(keys):
+                if key and i not in self.current_combo:
+                    self.current_combo[i] = key
+        else:
+            self.started_combo = False
+            self.current_combo = {}
+        
+        self.combo = True if len(self.current_combo) == len(keys) else False
+        
+        return self.combo
