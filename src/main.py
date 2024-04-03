@@ -10,5 +10,5 @@ clock = pg.time.Clock()
 pg.mouse.set_visible(MOUSE_VISIBLE)
 
 manager = StateManager(display, window, clock)
-# lol
+
 manager.run()

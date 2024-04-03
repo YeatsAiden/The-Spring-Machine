@@ -88,7 +88,7 @@ class Player(Entity):
 
         # Jump Action
         if self.actions["jump"].action_condition(
-            self.input_states["jumping"] and self.collision_state["bottom"] and not self.input_states["crouching"],
+            self.input_states["jumping"] and self.collision_state["bottom"] and not self.input_states["crouching"] and not self.combo.combo,
             current_time
             ):
             self.vel = self.actions["jump"].action(dt, self.vel, self.jump_force)
@@ -112,7 +112,7 @@ class Player(Entity):
         if not self.collision_state["bottom"]:
             self.vel.y += self.g * self.mass * dt
 
-        if not self.input_states["moving"]:
+        if not self.input_states["moving"] or self.input_states["crouching"] or self.input_states["jumping"]:
             self.vel.x /= self.friction
         if abs(self.vel.x) < self.min_vel and not self.input_states["moving"]:
             self.vel.x = 0
@@ -210,9 +210,12 @@ class Action:
 
         self.action_cooldown: float = action_cooldown
         self.time_since_action: float = 0
+
+        self.done: bool = False
     
 
     def action_condition(self, condition: bool, current_time: float):
+        self.done = False
         self.freeze_frame, self.time_since_freeze, action_condition = freeze_frame(
             condition and timer(current_time, self.time_since_action, self.action_cooldown),
             self.freeze_frame,
@@ -260,13 +263,24 @@ class WallJump(Action):
         vel.y = 0
         vel.y -= jump_force * dt * 20
         direction = collision_state["left"] - collision_state["right"]
-        print(collision_state["left"], collision_state["right"])
         vel.x += 200 * dt * direction
         return vel
 
 
 class LongJump(Action):
-    def __init__(self, freeze_duration: float = 0.3, action_cooldown: float = 1) -> None:
+    def __init__(self, freeze_duration: float = 0.4, action_cooldown: float = 1) -> None:
+        super().__init__(freeze_duration, action_cooldown)
+    
+
+    def action(self, dt: float, vel: pg.Vector2, facing: int, jump_force: int):
+        vel.x += 400 * dt * facing
+        vel.y = 0
+        vel.y -= jump_force * dt * 10
+        return vel
+
+
+class GroundStomp(Action):
+    def __init__(self, freeze_duration: float = 0.4, action_cooldown: float = 1) -> None:
         super().__init__(freeze_duration, action_cooldown)
     
 
