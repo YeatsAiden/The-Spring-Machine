@@ -9,6 +9,8 @@ except:
     from src.entity import Entity
     from src.animation import Animation
 
+from math import sin
+
 
 class Glacierd(Entity):
     def __init__(self, image_path: str, pos, starting_direction: str = "left"):
@@ -52,21 +54,31 @@ class Glacierd(Entity):
         self.time_since_last_collision: float = 0
         self.collision_cooldown: float = 0.5
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
+    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time: float):
         self.image = self.current_animation.animate(self.flip)
-        surf.blit(self.image, self.rect.topleft - cam_pos)
 
-    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float):
-        if self.state in ["left", "turn-back"]:
-            self.vel.x = -self.moving_speed * dt
-        elif self.state in ["right", "turn"]:
-            self.vel.x = self.moving_speed * dt
-        elif self.state in ["up", "flip-back"]:
-            self.vel.y = -self.moving_speed * dt
+        glacierd_pos = self.rect.topleft - cam_pos
+
+        if self.state in ["up", "down", "flip", "flip-back"]:
+            glacierd_pos.x += sin(current_time*5)*2
         else:
-            self.vel.y = self.moving_speed * dt
+            glacierd_pos.y += sin(current_time*5)*2
 
-        self.movement(rects)
+        surf.blit(self.image, glacierd_pos)
+
+    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float, in_bounds: bool):
+        if in_bounds:
+            if self.state in ["left", "turn-back"]:
+                self.vel.x = -self.moving_speed * dt
+            elif self.state in ["right", "turn"]:
+                self.vel.x = self.moving_speed * dt
+            elif self.state in ["up", "flip-back"]:
+                self.vel.y = -self.moving_speed * dt
+            else:
+                self.vel.y = self.moving_speed * dt
+
+            self.movement(rects)
+
         self.anim_state_check()
 
     def collision_check(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):

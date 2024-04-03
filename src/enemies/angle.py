@@ -43,21 +43,37 @@ class Angel(Entity):
         self.time_since_last_collision: float = 0
         self.collision_cooldown: float = 0.5
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
+        self.last_bomb_spawn_time = 0
+        self.bomb_spawn_cooldown = 5  # secs
+        self.time_to_spawn_a_bomb = False
+
+    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time):
         self.image = self.current_animation.animate(self.flip)
-        surf.blit(self.image, self.rect.topleft - cam_pos)
 
-    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float):
-        if self.state == "left":
-            self.vel.x = -self.moving_speed * dt
-        elif self.state == "right":
-            self.vel.x = self.moving_speed * dt
-        elif self.state == "up":
-            self.vel.y = -self.moving_speed * dt
-        elif self.state == "down":
-            self.vel.y = self.moving_speed * dt
+        angle_pos = self.rect.topleft - cam_pos
+        angle_pos.y += sin(current_time*5)*2
 
-        self.movement(rects)
+        surf.blit(self.image, angle_pos)
+
+    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float, in_bounds: bool):
+        if in_bounds:
+            if self.state == "left":
+                self.vel.x = -self.moving_speed * dt
+            elif self.state == "right":
+                self.vel.x = self.moving_speed * dt
+            elif self.state == "up":
+                self.vel.y = -self.moving_speed * dt
+            elif self.state == "down":
+                self.vel.y = self.moving_speed * dt
+
+            self.time_to_spawn_a_bomb = False  # reset every frame
+
+            if current_time - self.last_bomb_spawn_time > self.bomb_spawn_cooldown:
+                self.last_bomb_spawn_time = current_time
+                self.time_to_spawn_a_bomb = True
+
+            self.movement(rects)
+
         self.anim_state_check()
 
     def collision_check(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):

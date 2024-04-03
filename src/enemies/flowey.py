@@ -32,7 +32,7 @@ class Flowey(Entity):
         self.image = self.current_animation.animate(self.flip)
         surf.blit(self.image, self.rect.topleft - cam_pos)
 
-    def update(self, player_pos, current_time: int):
+    def update(self, player_pos, current_time: int, in_bounds: bool):
         self.try_attacking(current_time)
 
         self.anim_state_check(player_pos)
