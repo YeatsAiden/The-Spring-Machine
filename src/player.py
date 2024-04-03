@@ -252,7 +252,7 @@ class Jump(Action):
 
 
 class WallJump(Action):
-    def __init__(self, freeze_duration: float = 0.05, action_cooldown: float = 0.5) -> None:
+    def __init__(self, freeze_duration: float = 0, action_cooldown: float = 0) -> None:
         super().__init__(freeze_duration, action_cooldown)
     
 

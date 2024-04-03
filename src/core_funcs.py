@@ -79,7 +79,7 @@ def load_json(path: str):
 
 
 def timer(current_time, prev_time, cool_down):
-    return current_time - prev_time > cool_down
+    return current_time - prev_time >= cool_down
 
 
 def freeze_frame(condition: bool, freeze: bool, freeze_duration: int, time_since_freeze: float, current_time: float):
