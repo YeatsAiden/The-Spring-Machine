@@ -13,9 +13,12 @@ from math import sin, cos
 
 
 class FloweySpore(Entity):
-    def __init__(self, image_path: str, pos):
+    def __init__(self, image_path: str, pos, current_time):
         super().__init__(image_path, pos)
         self.state = "existing"
+
+        self.life_time = 10000
+        self.when_born = current_time
 
         self.possible_states = ["existing", "not existing"]
 
@@ -53,6 +56,9 @@ class FloweySpore(Entity):
             self.vel.x = -10*dt
         else:
             self.vel.x = 10*dt
+
+        if current_time - self.when_born > self.life_time:
+            self.state = "not existing"
 
         self.movement(rects)
 

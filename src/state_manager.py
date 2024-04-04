@@ -25,6 +25,8 @@ class StateManager:
         self.xy_change = [0, 0]
         self.scale = 1
 
+        self.mega_cool_bg = pg.image.load(PATHS["backgrounds"] + "/cool-bg.png").convert_alpha()
+
         self.current_time = time.time()
         self.dt = 1
 
@@ -52,7 +54,8 @@ class StateManager:
 
 
     def draw(self, surf: pg.Surface, current_time: float):
-        self.state.draw(surf, current_time)
+        surf.fill("black")
+        self.state.draw(surf, current_time, self.mega_cool_bg)
 
         if self.state.cursor_visible:
             self.display.blit(self.cursor_image, get_display_mouse_pos(self.scale, self.xy_change))

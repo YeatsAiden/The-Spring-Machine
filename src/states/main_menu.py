@@ -63,8 +63,9 @@ class MainMenu(State):
 
     def draw(self, *args):
         surf = args[0]
+        cool_art = args[2]
 
-        surf.fill("black")
+        surf.blit(cool_art, (0, 0))
 
         self.play_button.draw(surf, self.smol_font)
         self.settings_button.draw(surf, self.smol_font)

@@ -3,6 +3,8 @@ from core_funcs import *
 from entity import Entity
 from animation import Animation
 from particle import Particle
+from math import sin
+
 
 class Player(Entity):
     def __init__(self, image_path: str, pos):
@@ -59,10 +61,25 @@ class Player(Entity):
 
         self.combo = Combo()
 
+        self.fire_ring_activation_velocity = 4
+        self.fire_ring_disactivation_velocity = 1
+        self.fire_ring_activated = False
+        self.fire_ring = pg.image.load(PATHS["fire-ring"]).convert_alpha()
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):
+        self.died = False
+
+
+    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time, rects):
         self.image = self.current_animation.animate(self.flip)
         surf.blit(self.image, self.rect.topleft - cam_pos)
+
+        if self.fire_ring_activated:
+            fire_ring_image = pg.transform.rotate(self.fire_ring, (current_time * 40) % 360)
+            fire_ring_image = pg.transform.scale_by(fire_ring_image, 1.1+sin(current_time*5)/10)
+
+            fire_ring_rect = fire_ring_image.get_rect(center=self.rect.center)
+            surf.blit(fire_ring_image, fire_ring_rect.topleft-cam_pos)
+        
         if self.input_states["moving"]:
             particle = [[self.rect.centerx, self.rect.bottom], [(random.randint(2, 3)) if self.facing < 0 else random.randint(-3, -2), random.randint(-6, -3)], 1, 1, 5, 0.5, pg.Rect(self.rect.x, self.rect.y, 1, 1), pg.image.load(PATHS["particle"] + '/dust.png')]
             self.run_particle.particle_process(surf, particle, "run", cam_pos, rects)
@@ -82,10 +99,16 @@ class Player(Entity):
         return self.input_states["moving"] if self.input_states["moving"] != 0 else self.facing
 
 
-    def move(self, keys_pressed, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float):
+    def move(self, keys_pressed, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float,
+             killable_entities, damagable_entities):
         self.input_states["moving"], self.input_states["jumping"], self.input_states["crouching"] = self.get_input_state(keys_pressed)
 
         self.facing = self.get_facing()
+
+        if self.vel.length() > self.fire_ring_activation_velocity:
+            self.fire_ring_activated = True
+        elif self.vel.length() < self.fire_ring_disactivation_velocity:
+            self.fire_ring_activated = False
 
         # Run Action
         if self.actions["run"].action_condition(
@@ -134,6 +157,30 @@ class Player(Entity):
 
         self.vel.y = min(self.vel.y, self.max_fall_speed)
         self.vel.x = max(min(self.vel.x, self.max_vel), -self.max_vel)
+
+        for entities in killable_entities:
+            killed_entities = []
+            for i, entity in enumerate(entities):
+                if self.rect.colliderect(entity.rect):
+                    if self.fire_ring_activated is True:
+                        killed_entities.append(i)
+                    else:
+                        self.died = True
+                if self.fire_ring.get_rect(center=self.rect.center).colliderect(entity):
+                    killed_entities.append(i)
+
+            for i in killed_entities:
+                entities.pop(i)
+
+
+        for entities in damagable_entities:
+            for entity in entities:
+                if self.fire_ring.get_rect(center=self.rect.center).colliderect(entity.rect):
+                    if self.fire_ring_activated is False:
+                        self.died = True
+                    self.fire_ring_activated = False
+
+
 
         self.movement(rects)
         self.anim_state_check(keys_pressed, current_time)

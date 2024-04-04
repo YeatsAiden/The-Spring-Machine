@@ -10,6 +10,7 @@ except:
     from src.animation import Animation
 
 from math import dist
+from random import choice
 
 
 class Flowey(Entity):
@@ -29,8 +30,11 @@ class Flowey(Entity):
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
         self.time_since_last_attack = 0
-        self.cooldown = 2  # secs
+        self.cooldown = 1  # secs
         self.time_to_spit_spore = False
+
+        self.spore_spawn_offsets = [1, 2, 3]
+        self.offset = 1
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
         self.image = self.current_animation.animate(self.flip)
@@ -42,9 +46,10 @@ class Flowey(Entity):
         player_in_range = dist(player_pos, self.rect.center) < self.activation_range
 
         if in_bounds:
-            if current_time - self.time_since_last_attack > self.cooldown and player_in_range:
+            if current_time - self.time_since_last_attack > (self.cooldown + self.offset) and player_in_range:
                 self.time_to_spit_spore = True
                 self.time_since_last_attack = current_time
+                self.offset = choice(self.spore_spawn_offsets)
 
         self.anim_state_check(player_pos)
 

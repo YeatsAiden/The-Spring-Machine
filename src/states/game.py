@@ -55,7 +55,7 @@ class Game(State):
         keys_pressed = args[3]
         sound_manager = args[4]
 
-        sound_manager.play_music(self.music_playing, 0)
+        sound_manager.play_music(self.music_playing, 0.5)
 
         self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
         self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
@@ -64,20 +64,21 @@ class Game(State):
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
         self.rect_area = self.levels["0"].get_rects(self.tile_area)
 
-        self.player.move(keys_pressed, dt, self.rect_area, current_time)
+        self.player.move(keys_pressed, dt, self.rect_area, current_time, [self.floweys, self.glacierds, self.angles], [self.flowey_spores, self.angle_bombs])
 
         self.update_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, self.player.rect.center, current_time, dt, self.rect_area, self.cam_pos)
 
     def draw(self, *args):
         surf = args[0]
         current_time = args[1]
+        mega_cool_art = args[2]
 
-        surf.fill("#4f8fba")
+        surf.blit(mega_cool_art, (0, 0))
         self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
 
         self.draw_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, surf, self.cam_pos, current_time)
 
-        self.player.draw(surf, self.cam_pos, self.rect_area)
+        self.player.draw(surf, self.cam_pos, current_time, self.rect_area)
 
 
     def event_loop(self, events):
@@ -106,13 +107,13 @@ class Game(State):
             flowey.update(player_pos, current_time, self.check_entity_in_bounds(cam_pos, flowey))
 
             if flowey.time_to_spit_spore:
-                flowey_spores.append(FloweySpore(PATHS["enemies"], flowey.rect.center))
+                flowey_spores.append(FloweySpore(PATHS["enemies"], flowey.rect.center, current_time))
 
         for glacierd in glacierds:
-            glacierd.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, glacierd))
+            glacierd.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, glacierd), player_pos)
 
         for angle in angles:
-            angle.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, angle))
+            angle.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, angle), player_pos)
 
             if angle.time_to_spawn_a_bomb and self.check_entity_in_bounds(cam_pos, angle):
                 angle_bombs.append(AngelBomb(PATHS["enemies"], angle.rect.center))

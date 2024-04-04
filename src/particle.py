@@ -34,8 +34,8 @@ class Particle:
 
     # particle array structure => [pos, vel, size, size_change, duration, count_down, rect, image]
 
-    def particle_process(self, surf, new_particle, particle_proccess_name, scroll, tiles, current_time):
-        if (self.proccesses[particle_proccess_name]["can_append"] or self.proccesses[particle_proccess_name]["infinite"]) and len(self.proccesses[particle_proccess_name]["particles"]) < self.proccesses[particle_proccess_name]["limit"] and timer(current_time, ):
+    def particle_process(self, surf, new_particle, particle_proccess_name, scroll, tiles):
+        if (self.proccesses[particle_proccess_name]["can_append"] or self.proccesses[particle_proccess_name]["infinite"]) and len(self.proccesses[particle_proccess_name]["particles"]) < self.proccesses[particle_proccess_name]["limit"]:
             self.proccesses[particle_proccess_name]["time_since"]
             self.proccesses[particle_proccess_name]["particles"].append(new_particle)
 
