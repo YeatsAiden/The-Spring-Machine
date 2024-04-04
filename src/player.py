@@ -69,7 +69,7 @@ class Player(Entity):
         self.died = False
 
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time, rects):
+    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time, rects, dt):
         self.image = self.current_animation.animate(self.flip)
         surf.blit(self.image, self.rect.topleft - cam_pos)
 
@@ -81,8 +81,9 @@ class Player(Entity):
             surf.blit(fire_ring_image, fire_ring_rect.topleft-cam_pos)
         
         if self.input_states["moving"]:
-            particle = [[self.rect.centerx, self.rect.bottom], [(random.randint(2, 3)) if self.facing < 0 else random.randint(-3, -2), random.randint(-6, -3)], 1, 1, 5, 0.5, pg.Rect(self.rect.x, self.rect.y, 1, 1), pg.image.load(PATHS["particle"] + '/dust.png')]
-            self.run_particle.particle_process(surf, particle, "run", cam_pos, rects)
+            # particle array structure => [pos, vel, size, size_change, duration, rect, image]
+            particle = [[self.rect.centerx, self.rect.bottom], [(random.randint(20, 30)) if self.facing < 0 else random.randint(-30, -20), random.randint(-40, -30)], 1, 0.25, 0.5, pg.Rect(self.rect.x, self.rect.y, 2, 2), pg.image.load(PATHS["particle"] + '/dust.png')]
+            self.run_particle.particle_process(surf, particle, "run", cam_pos, rects, current_time, dt)
     
 
     def get_input_state(self, keys_pressed):
@@ -262,27 +263,6 @@ class Player(Entity):
         if new_state != state:
             state, frame = new_state, 0
         return state, frame
-    
-
-    # def fire_aura(self):
-        
-
-
-# class ActionManager:
-#     def __init__(self, **actions) -> None:
-#         self.actions = {key: action for key, action in actions}
-#         self.current_action: str
-    
-
-#     def update(self, current_time: float):
-#         for key, action in self.actions:
-#             condition = (self.collision_state['right'] or self.collision_state['left']) and not self.collision_state['bottom'] and self.input_states['jumping'] and self.input_states['moving'] and timer(current_time, self.time_since_last_collision, self.collision_cooldown)
-#             if action.action_condition(
-#                 condition,
-#                 current_time
-#                 ):
-#                 self.vel = self.actions["wall_jump"].action(dt, self.vel, self.collision_state, self.jump_force)
-
 
 
 class Action:

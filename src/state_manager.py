@@ -53,9 +53,9 @@ class StateManager:
         self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change), keys_pressed, sound_manager)
 
 
-    def draw(self, surf: pg.Surface, current_time: float):
+    def draw(self, surf: pg.Surface, current_time: float, dt: float):
         surf.fill("black")
-        self.state.draw(surf, current_time, self.mega_cool_bg)
+        self.state.draw(surf, current_time, self.mega_cool_bg, dt)
 
         if self.state.cursor_visible:
             self.display.blit(self.cursor_image, get_display_mouse_pos(self.scale, self.xy_change))
@@ -91,7 +91,7 @@ class StateManager:
             events = pg.event.get()
             self.event_loop(events)
             self.update(self.dt, self.keys_pressed, self.current_time, self.scale, self.xy_change, self.sound_manager)
-            self.draw(self.display, self.current_time)
+            self.draw(self.display, self.current_time, self.dt)
 
             self.swap_state()
 
