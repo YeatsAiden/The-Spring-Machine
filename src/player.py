@@ -55,9 +55,12 @@ class Player(Entity):
 
         self.combo = Combo()
 
-        self.fire_ring_activation_velocity = 4.5
+        self.fire_ring_activation_velocity = 4
+        self.fire_ring_disactivation_velocity = 1
         self.fire_ring_activated = False
         self.fire_ring = pg.image.load(PATHS["fire-ring"]).convert_alpha()
+
+        self.died = False
 
 
     def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time):
@@ -94,7 +97,7 @@ class Player(Entity):
 
         if self.vel.length() > self.fire_ring_activation_velocity:
             self.fire_ring_activated = True
-        else:
+        elif self.vel.length() < self.fire_ring_disactivation_velocity:
             self.fire_ring_activated = False
 
         # Run Action
@@ -137,6 +140,30 @@ class Player(Entity):
 
         self.vel.y = min(self.vel.y, self.max_fall_speed)
         self.vel.x = max(min(self.vel.x, self.max_vel), -self.max_vel)
+
+        for entities in killable_entities:
+            killed_entities = []
+            for i, entity in enumerate(entities):
+                if self.rect.colliderect(entity.rect):
+                    if self.fire_ring_activated is True:
+                        killed_entities.append(i)
+                    else:
+                        self.died = True
+                if self.fire_ring.get_rect(center=self.rect.center).colliderect(entity):
+                    killed_entities.append(i)
+
+            for i in killed_entities:
+                entities.pop(i)
+
+
+        for entities in damagable_entities:
+            for entity in entities:
+                if self.fire_ring.get_rect(center=self.rect.center).colliderect(entity.rect):
+                    if self.fire_ring_activated is False:
+                        self.died = True
+                    self.fire_ring_activated = False
+
+
 
         self.movement(rects)
         self.anim_state_check(keys_pressed, current_time)

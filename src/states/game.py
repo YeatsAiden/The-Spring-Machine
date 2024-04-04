@@ -64,7 +64,7 @@ class Game(State):
         self.tile_area = self.levels["0"].get_area(self.cam_pos)
         self.rect_area = self.levels["0"].get_rects(self.tile_area)
 
-        self.player.move(keys_pressed, dt, self.rect_area, current_time)
+        self.player.move(keys_pressed, dt, self.rect_area, current_time, [self.floweys, self.glacierds, self.angles], [self.flowey_spores, self.angle_bombs])
 
         self.update_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, self.player.rect.center, current_time, dt, self.rect_area, self.cam_pos)
 
