@@ -77,7 +77,7 @@ class Game(State):
 
         self.draw_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, surf, self.cam_pos, current_time)
 
-        self.player.draw(surf, self.cam_pos)
+        self.player.draw(surf, self.cam_pos, self.rect_area)
 
 
     def event_loop(self, events):

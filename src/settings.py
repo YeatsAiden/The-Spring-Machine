@@ -4,6 +4,7 @@ import sys
 import os
 import math
 import time
+import random
 
 WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = 960, 480
 DISPLAY_SIZE = DISPLAY_WIDTH, DISPLAY_HEIGHT = 320, 192
@@ -32,6 +33,7 @@ PATHS = {
     "enemies": current_dir + "/assets/enemies",
     "flowey": current_dir + "/assets/enemies/flowey",
     "glacierd": current_dir + "/assets/enemies/glacierd",
-    "angle": current_dir + "/assets/enemies"
+    "angle": current_dir + "/assets/enemies",
+    "particle": current_dir + "/assets/particles"
 }
 

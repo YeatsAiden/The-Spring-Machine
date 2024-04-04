@@ -1,42 +1,42 @@
 { "frames": {
    "0": {
-    "frame": { "x": 0, "y": 0, "w": 6, "h": 20 },
+    "frame": { "x": 0, "y": 0, "w": 6, "h": 21 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 20 },
-    "sourceSize": { "w": 6, "h": 20 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 21 },
+    "sourceSize": { "w": 6, "h": 21 },
     "duration": 200
    },
    "1": {
-    "frame": { "x": 6, "y": 0, "w": 6, "h": 20 },
+    "frame": { "x": 6, "y": 0, "w": 6, "h": 21 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 20 },
-    "sourceSize": { "w": 6, "h": 20 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 21 },
+    "sourceSize": { "w": 6, "h": 21 },
     "duration": 200
    },
    "2": {
-    "frame": { "x": 12, "y": 0, "w": 6, "h": 20 },
+    "frame": { "x": 12, "y": 0, "w": 6, "h": 21 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 20 },
-    "sourceSize": { "w": 6, "h": 20 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 21 },
+    "sourceSize": { "w": 6, "h": 21 },
     "duration": 200
    },
    "3": {
-    "frame": { "x": 18, "y": 0, "w": 6, "h": 20 },
+    "frame": { "x": 18, "y": 0, "w": 6, "h": 21 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 20 },
-    "sourceSize": { "w": 6, "h": 20 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 21 },
+    "sourceSize": { "w": 6, "h": 21 },
     "duration": 200
    },
    "4": {
-    "frame": { "x": 0, "y": 0, "w": 6, "h": 20 },
+    "frame": { "x": 0, "y": 0, "w": 6, "h": 21 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 20 },
-    "sourceSize": { "w": 6, "h": 20 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 21 },
+    "sourceSize": { "w": 6, "h": 21 },
     "duration": 200
    }
  },
@@ -45,7 +45,7 @@
   "version": "1.2.40-dev",
   "image": "idle.png",
   "format": "RGBA8888",
-  "size": { "w": 24, "h": 20 },
+  "size": { "w": 24, "h": 21 },
   "scale": "1",
   "frameTags": [
   ],
