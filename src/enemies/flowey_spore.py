@@ -25,7 +25,7 @@ class FloweySpore(Entity):
 
         self.pos = pos
         self.image = pg.image.load(image_path+"/flowey_spore.png")
-        self.rect = pg.FRect(self.image.get_bounding_rect())
+        self.rect = pg.FRect(0, 0, 1, 1)
         self.rect.topleft = self.pos
 
         self.vel = pg.Vector2(0, -1)
@@ -52,10 +52,10 @@ class FloweySpore(Entity):
         self.vel.y += self.acceleration * dt
         self.vel.y = min(self.vel.y, 10*dt)
 
-        if player_pos[0] < self.rect.x:
-            self.vel.x = -10*dt
-        else:
-            self.vel.x = 10*dt
+        # if player_pos[0] < self.rect.x:
+        #     self.vel.x = -10*dt
+        # else:
+        #     self.vel.x = 10*dt
 
         if current_time - self.when_born > self.life_time:
             self.state = "not existing"

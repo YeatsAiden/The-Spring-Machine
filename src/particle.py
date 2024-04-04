@@ -17,7 +17,7 @@ class Particle:
         return image
     
     # "dirt_explosion", 2, True, False, dirt_img, 0.1
-    def create_proccess(self, name, duration, make_collisions, infinite, gravity, limit):
+    def create_proccess(self, name, duration, make_collisions, infinite, gravity, limit, amount):
         # Please if you are reviewing this code. i know it's terrible. it's from like a year ago. Was to lazy to make a new particle system....:[
         self.proccesses.update({
             name:{
@@ -29,14 +29,15 @@ class Particle:
                 "make_collisions": make_collisions,
                 "infinite": infinite,
                 "gravity": gravity,
-                "time_since": 0
+                "time_since": 0,
+                "amount": amount,
                 }
             })
 
 
     # particle array structure => [pos, vel, size, size_change, duration, rect, image]
     def particle_process(self, surf, new_particle, particle_proccess_name, scroll, tiles, current_time, dt):
-        if (self.proccesses[particle_proccess_name]["can_append"] or self.proccesses[particle_proccess_name]["infinite"]) and len(self.proccesses[particle_proccess_name]["particles"]) < self.proccesses[particle_proccess_name]["limit"] and timer(current_time, self.proccesses[particle_proccess_name]["time_since"], 0.1):
+        if (self.proccesses[particle_proccess_name]["can_append"] or self.proccesses[particle_proccess_name]["infinite"]) and len(self.proccesses[particle_proccess_name]["particles"]) < self.proccesses[particle_proccess_name]["limit"] and timer(current_time, self.proccesses[particle_proccess_name]["time_since"], self.proccesses[particle_proccess_name]["amount"]):
             self.proccesses[particle_proccess_name]["time_since"] = time.time()
             self.proccesses[particle_proccess_name]["particles"].append(new_particle)
 

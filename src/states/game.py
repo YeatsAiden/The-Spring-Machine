@@ -37,7 +37,10 @@ class Game(State):
         self.smol_font = Font(PATHS["fonts"] + "/" + "smol_font.png", [1, 2, 3], 1)
 
         self.levels: dict[str, Level] = {file.split('.')[0]: Level(self.objects, self.spawns, self.tile_sets, PATHS['levels'] + "/" + file) for file in get_file_names(PATHS['levels']) if file.split('.')[1] == "json"}
-        self.current_level = self.levels["0"]
+        self.level_index = 0
+        self.current_level = self.levels[str(self.level_index)]
+        
+        self.player = Player(PATHS["player"], (0, 0))
 
         self.load_entity_position_from_level_data(self.current_level)
 
@@ -54,19 +57,32 @@ class Game(State):
         current_time = args[1]
         keys_pressed = args[3]
         sound_manager = args[4]
+        surf = args[5]
 
         sound_manager.play_music(self.music_playing, 0.5)
 
         self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
         self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
 
+        if not len(self.angles) and not len(self.glacierds) and not len(self.floweys) and self.level_index < len(self.levels) - 1:
+            self.level_index += 1
+            self.current_level = self.levels[str(self.level_index)]
+            self.load_entity_position_from_level_data(self.current_level)
 
-        self.tile_area = self.levels["0"].get_area(self.cam_pos)
-        self.rect_area = self.levels["0"].get_rects(self.tile_area)
+        if self.level_index == len(self.levels) - 1 and not len(self.angles) and not len(self.glacierds) and not len(self.floweys):
+            self.next_state = "MainMenu"
+            self.done = True
+
+        self.tile_area = self.current_level.get_area(self.cam_pos)
+        self.rect_area = self.current_level.get_rects(self.tile_area)
 
         self.player.move(keys_pressed, dt, self.rect_area, current_time, [self.floweys, self.glacierds, self.angles], [self.flowey_spores, self.angle_bombs])
 
-        self.update_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, self.player.rect.center, current_time, dt, self.rect_area, self.cam_pos)
+        self.update_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, self.player.rect.center, current_time, dt, self.rect_area, self.cam_pos, surf)
+
+        if self.player.rect.y > 300 or self.player.died:
+            self.load_entity_position_from_level_data(self.current_level)
+            self.player.hurt_sound.play()
 
     def draw(self, *args):
         surf = args[0]
@@ -75,9 +91,9 @@ class Game(State):
         dt = args[3]
 
         surf.blit(mega_cool_art, (0, 0))
-        self.levels["0"].draw_level(surf, self.tile_area, self.cam_pos)
+        self.current_level.draw_level(surf, self.tile_area, self.cam_pos)
 
-        self.draw_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, surf, self.cam_pos, current_time)
+        self.draw_entities(self.floweys, self.glacierds, self.angles, self.angle_bombs, self.flowey_spores, surf, self.cam_pos, current_time, dt)
 
         self.player.draw(surf, self.cam_pos, current_time, self.rect_area, dt)
 
@@ -102,7 +118,8 @@ class Game(State):
                         current_time,
                         dt,
                         rects,
-                        cam_pos):
+                        cam_pos,
+                        surf):
 
         for flowey in floweys:
             flowey.update(player_pos, current_time, self.check_entity_in_bounds(cam_pos, flowey))
@@ -126,21 +143,20 @@ class Game(State):
             if angle_bomb.state == "done exploding":
                 angle_bombs_to_exterminate.append(i)
 
-        for i in angle_bombs_to_exterminate[::-1]:  # hard to explain why reverse, but it is required
+        for i in angle_bombs_to_exterminate[::-1]:  # hard to explain why reverse, but it is required ;-;-;-;
             angle_bombs.pop(i)
 
         # flowey spores special stuff
         spores_to_eliminate = []
         for i, spore in enumerate(flowey_spores):
             spore.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, spore), player_pos)
-
             if spore.state == "not existing":
                 spores_to_eliminate.append(i)
 
         for i in spores_to_eliminate[::-1]:
             flowey_spores.pop(i)
 
-    def draw_entities(self, floweys, glacierds, angles, angle_bombs, flowey_spores, surf, cam_pos, current_time):
+    def draw_entities(self, floweys, glacierds, angles, angle_bombs, flowey_spores, surf, cam_pos, current_time, dt):
         for flowey in floweys:
             flowey.draw(surf, cam_pos)
 
@@ -151,7 +167,7 @@ class Game(State):
             angle.draw(surf, cam_pos, current_time)
 
         for angle_bomb in angle_bombs:
-            angle_bomb.draw(surf, cam_pos, current_time)
+            angle_bomb.draw(surf, cam_pos, current_time, dt, self.rect_area)
 
         for spore in flowey_spores:
             spore.draw(surf, cam_pos, current_time)

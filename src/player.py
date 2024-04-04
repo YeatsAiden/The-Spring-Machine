@@ -17,7 +17,14 @@ class Player(Entity):
         self.animation: dict[str, Animation] = {dir: Animation(image_path + "/" + dir + "/" + dir + ".png", self.animation_config[dir]) for dir in get_dir_names(image_path)}
 
         self.run_particle = Particle()
-        self.run_particle.create_proccess("run", 1, True, True, True, 25)
+        self.run_particle.create_proccess("run", 1, False, True, True, 25, 0.1)
+
+        self.fire_particle = Particle()
+        self.fire_particle.create_proccess("fire", 1, True, True, True, 100, 0.01)
+
+        self.jump_sound = load_sound(PATHS["sound"] + "/jump.wav")
+        self.hurt_sound = load_sound(PATHS["sound"] + "/hurt.wav")
+        self.speed_sound = load_sound(PATHS["sound"] + "/speed.wav")
 
         self.pos = pos
         self.current_animation: Animation = self.animation[self.state]
@@ -79,10 +86,13 @@ class Player(Entity):
 
             fire_ring_rect = fire_ring_image.get_rect(center=self.rect.center)
             surf.blit(fire_ring_image, fire_ring_rect.topleft-cam_pos)
+
+            particle = [[self.rect.x + random.randint(-self.rect.width, 2 * self.rect.width), self.rect.y + random.randint(-self.rect.width, 2 * self.rect.width)], [0, 0], 1, 1, 0.2, pg.Rect(self.rect.x, self.rect.y, 2, 2), pg.image.load(PATHS["particle"] + '/ember.png').convert_alpha()]
+            self.fire_particle.particle_process(surf, particle, "fire", cam_pos, rects, current_time, dt)
         
         if self.input_states["moving"]:
             # particle array structure => [pos, vel, size, size_change, duration, rect, image]
-            particle = [[self.rect.centerx, self.rect.bottom], [(random.randint(20, 30)) if self.facing < 0 else random.randint(-30, -20), random.randint(-40, -30)], 1, 0.25, 0.5, pg.Rect(self.rect.x, self.rect.y, 2, 2), pg.image.load(PATHS["particle"] + '/dust.png')]
+            particle = [[self.rect.centerx, self.rect.bottom], [(random.randint(20, 30)) if self.facing < 0 else random.randint(-30, -20), random.randint(-40, -30)], 1, 0.25, 0.5, pg.Rect(self.rect.x, self.rect.y, 2, 2), pg.image.load(PATHS["particle"] + '/dust.png').convert_alpha()]
             self.run_particle.particle_process(surf, particle, "run", cam_pos, rects, current_time, dt)
     
 
@@ -123,6 +133,7 @@ class Player(Entity):
             self.input_states["jumping"] and self.collision_state["bottom"] and not self.input_states["crouching"] and not self.combo.combo,
             current_time
             ):
+            self.jump_sound.play()
             self.vel = self.actions["jump"].action(dt, self.vel, self.jump_force)
 
         # Wall jump action
@@ -131,6 +142,7 @@ class Player(Entity):
             can_wall_jump,
             current_time
             ):
+            self.jump_sound.play()
             self.vel = self.actions["wall_jump"].action(dt, self.vel, self.collision_state, self.jump_force)
 
         # Long jump action
@@ -139,6 +151,7 @@ class Player(Entity):
             self.combo.combo_condition(current_time, self.input_states["jumping"]),
             current_time
             ):
+            self.speed_sound.play()
             self.vel = self.actions["long_jump"].action(dt, self.vel, self.facing, self.jump_force)
 
         # Ground stomp action
@@ -146,6 +159,7 @@ class Player(Entity):
             self.input_states["crouching"] and not self.collision_state["bottom"],
             current_time
             ):
+            self.speed_sound.play()
             self.vel = self.actions["ground_stomp"].action(dt, self.vel, self.jump_force)
 
         if not self.collision_state["bottom"]:
@@ -167,11 +181,14 @@ class Player(Entity):
                         killed_entities.append(i)
                     else:
                         self.died = True
-                if self.fire_ring.get_rect(center=self.rect.center).colliderect(entity):
+                if self.fire_ring.get_rect(center=self.rect.center).colliderect(entity) and self.fire_ring_activated:
                     killed_entities.append(i)
 
             for i in killed_entities:
-                entities.pop(i)
+                try:
+                    entities.pop(i)
+                except:
+                    pass
 
 
         for entities in damagable_entities:
@@ -336,7 +353,7 @@ class LongJump(Action):
     
 
     def action(self, dt: float, vel: pg.Vector2, facing: int, jump_force: int):
-        vel.x += 400 * dt * facing
+        vel.x += 300 * dt * facing
         vel.y = 0
         vel.y -= jump_force * dt * 10
         return vel

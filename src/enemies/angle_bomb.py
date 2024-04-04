@@ -3,11 +3,13 @@ try:
     from core_funcs import *
     from entity import Entity
     from animation import Animation
+    from particle import Particle
 except:
     from src.settings import *
     from src.core_funcs import *
     from src.entity import Entity
     from src.animation import Animation
+    from src.particle import Particle
 
 from math import sin
 
@@ -38,7 +40,10 @@ class AngelBomb(Entity):
             "bottom": False
         }
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time: float):
+        self.particle = Particle()
+        self.particle.create_proccess("explosion", 2, True, False, False, 60, 0.05)
+
+    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time: float, dt: float, rect_area):
         if self.state == "not exploded (nice)":
             self.image = self.current_animation.animate(self.flip)
 
@@ -48,7 +53,16 @@ class AngelBomb(Entity):
 
             surf.blit(image, pos)
         else:
-            pass  # we are awaiting for your particle manager to finish this explosion part
+            particle = [
+                [self.rect.x, self.rect.y],
+                [random.randint(-30, 30), random.randint(-30, 30)],
+                random.randint(10, 20) ,
+                0.05,
+                3,
+                pg.FRect(self.rect.x, self.rect.y, 1, 1),
+                pg.image.load(PATHS["particle"] + '/smoke.png').convert_alpha()
+            ]
+            self.particle.particle_process(surf, particle, "explosion", cam_pos, rect_area, current_time, dt)
 
     def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float, in_bounds: bool):
         self.vel.y = self.moving_speed * dt

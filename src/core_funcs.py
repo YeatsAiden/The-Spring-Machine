@@ -99,3 +99,7 @@ def get_display_mouse_pos(scale, xy_change):
     mouse_y = (mouse_y - xy_change[1]) / scale
 
     return mouse_x, mouse_y
+
+
+def load_sound(path: str):
+    return pg.mixer.Sound(path)

@@ -36,6 +36,7 @@ PATHS = {
     "angle": current_dir + "/assets/enemies",
     "particle": current_dir + "/assets/particles",
     "backgrounds": current_dir + "/assets/background",
-    "fire-ring": current_dir + "/assets/other/fire-ring.png"
+    "fire-ring": current_dir + "/assets/other/fire-ring.png",
+    "sound": current_dir + "/assets/sounds",
 }
 

@@ -18,7 +18,7 @@ class StateManager:
             "Game": Game
         }
 
-        self.current_state: str = "Game"
+        self.current_state: str = "MainMenu"
         self.state = self.states[self.current_state]()
         self.previous_state: str = None
 
@@ -49,8 +49,9 @@ class StateManager:
         scale = args[3]
         xy_change = args[4]
         sound_manager = args[5]
+        surf = args[6]
 
-        self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change), keys_pressed, sound_manager)
+        self.state.update(dt, current_time, get_display_mouse_pos(scale, xy_change), keys_pressed, sound_manager, surf)
 
 
     def draw(self, surf: pg.Surface, current_time: float, dt: float):
@@ -90,7 +91,7 @@ class StateManager:
 
             events = pg.event.get()
             self.event_loop(events)
-            self.update(self.dt, self.keys_pressed, self.current_time, self.scale, self.xy_change, self.sound_manager)
+            self.update(self.dt, self.keys_pressed, self.current_time, self.scale, self.xy_change, self.sound_manager, self.display)
             self.draw(self.display, self.current_time, self.dt)
 
             self.swap_state()
