@@ -2,6 +2,7 @@ from settings import *
 from core_funcs import *
 from entity import Entity
 from animation import Animation
+from math import sin
 
 class Player(Entity):
     def __init__(self, image_path: str, pos):
@@ -54,10 +55,21 @@ class Player(Entity):
 
         self.combo = Combo()
 
+        self.fire_ring_activation_velocity = 4.5
+        self.fire_ring_activated = False
+        self.fire_ring = pg.image.load(PATHS["fire-ring"]).convert_alpha()
 
-    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2):
+
+    def draw(self, surf: pg.Surface, cam_pos: pg.Vector2, current_time):
         self.image = self.current_animation.animate(self.flip)
         surf.blit(self.image, self.rect.topleft - cam_pos)
+
+        if self.fire_ring_activated:
+            fire_ring_image = pg.transform.rotate(self.fire_ring, (current_time * 40) % 360)
+            fire_ring_image = pg.transform.scale_by(fire_ring_image, 1.1+sin(current_time*5)/10)
+
+            fire_ring_rect = fire_ring_image.get_rect(center=self.rect.center)
+            surf.blit(fire_ring_image, fire_ring_rect.topleft-cam_pos)
     
 
     def get_input_state(self, keys_pressed):
@@ -74,10 +86,16 @@ class Player(Entity):
         return self.input_states["moving"] if self.input_states["moving"] != 0 else self.facing
 
 
-    def move(self, keys_pressed, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float):
+    def move(self, keys_pressed, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float,
+             killable_entities, damagable_entities):
         self.input_states["moving"], self.input_states["jumping"], self.input_states["crouching"] = self.get_input_state(keys_pressed)
 
         self.facing = self.get_facing()
+
+        if self.vel.length() > self.fire_ring_activation_velocity:
+            self.fire_ring_activated = True
+        else:
+            self.fire_ring_activated = False
 
         # Run Action
         if self.actions["run"].action_condition(
