@@ -55,7 +55,7 @@ class Game(State):
         keys_pressed = args[3]
         sound_manager = args[4]
 
-        sound_manager.play_music(self.music_playing, 0)
+        sound_manager.play_music(self.music_playing, 0.5)
 
         self.cam_pos.x += (self.player.rect.x - self.cam_pos.x - DISPLAY_WIDTH/2)/10
         self.cam_pos.y += (self.player.rect.y - self.cam_pos.y - DISPLAY_HEIGHT/2)/10
@@ -107,13 +107,13 @@ class Game(State):
             flowey.update(player_pos, current_time, self.check_entity_in_bounds(cam_pos, flowey))
 
             if flowey.time_to_spit_spore:
-                flowey_spores.append(FloweySpore(PATHS["enemies"], flowey.rect.center))
+                flowey_spores.append(FloweySpore(PATHS["enemies"], flowey.rect.center, current_time))
 
         for glacierd in glacierds:
-            glacierd.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, glacierd))
+            glacierd.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, glacierd), player_pos)
 
         for angle in angles:
-            angle.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, angle))
+            angle.move(dt, rects, current_time, self.check_entity_in_bounds(cam_pos, angle), player_pos)
 
             if angle.time_to_spawn_a_bomb and self.check_entity_in_bounds(cam_pos, angle):
                 angle_bombs.append(AngelBomb(PATHS["enemies"], angle.rect.center))

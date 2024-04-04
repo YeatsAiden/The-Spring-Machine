@@ -9,24 +9,18 @@ except:
     from src.entity import Entity
     from src.animation import Animation
 
-from math import sin
+from math import sin, dist
 
 class Angel(Entity):
-    def __init__(self, image_path: str, pos, starting_state: str = "idle"):
+    def __init__(self, image_path: str, pos):
         super().__init__(image_path, pos)
-        self.state = starting_state
-
-        self.possible_states = ["left", "right", "up", "down", "idle"]
+        self.state = "idle"
 
         self.animation_config = load_json(image_path + "/angle/angle.json")
-        self.animation = {"left": Animation(image_path + "/angle/angle.png", self.animation_config),
-                          "right": Animation(image_path + "/angle/angle.png", self.animation_config, "flipped"),
-                          "up": Animation(image_path + "/angle/angle.png", self.animation_config),
-                          "down": Animation(image_path + "/angle/angle.png", self.animation_config, "flipped"),
-                          "idle": Animation(image_path + "/angle/angle.png", self.animation_config)}
+        self.animation = Animation(image_path + "/angle/angle.png", self.animation_config)
 
         self.pos = pos
-        self.current_animation: Animation = self.animation[self.state]
+        self.current_animation = self.animation
         self.image = self.current_animation.image
         self.rect = pg.FRect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
@@ -40,6 +34,9 @@ class Angel(Entity):
             "bottom": False
         }
 
+        self.vision_radius = 4 * TILE_SIZE
+        self.camp_height = 3 * TILE_SIZE
+
         self.last_bomb_spawn_time = 0
         self.bomb_spawn_cooldown = 5  # secs
         self.time_to_spawn_a_bomb = False
@@ -52,26 +49,35 @@ class Angel(Entity):
 
         surf.blit(self.image, angle_pos)
 
-    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float, in_bounds: bool):
+    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float, in_bounds: bool, player_pos):
         if in_bounds:
-            if self.state == "left":
-                self.vel.x = -self.moving_speed * dt
-            elif self.state == "right":
-                self.vel.x = self.moving_speed * dt
-            elif self.state == "up":
-                self.vel.y = -self.moving_speed * dt
-            elif self.state == "down":
-                self.vel.y = self.moving_speed * dt
+            if self.state == "following player":
+                if player_pos[0]+5 < self.rect.centerx:
+                    self.vel.x = -20*dt
+                elif player_pos[0]-5 > self.rect.centerx:
+                    self.vel.x = 20*dt
+                else:
+                    self.vel.x = 0
+
+                if (player_pos[1] - self.camp_height + 5) < self.rect.centery:
+                    self.vel.y = -40*dt
+                elif (player_pos[1] - self.camp_height - 5) > self.rect.centery:
+                    self.vel.y = 40*dt
+                else:
+                    self.vel.y = 0
+            else:
+                self.vel.x = 0
+                self.vel.y = 0
 
             self.time_to_spawn_a_bomb = False  # reset every frame
 
-            if current_time - self.last_bomb_spawn_time > self.bomb_spawn_cooldown:
+            if current_time - self.last_bomb_spawn_time > self.bomb_spawn_cooldown and self.state == "following player":
                 self.last_bomb_spawn_time = current_time
                 self.time_to_spawn_a_bomb = True
 
             self.movement(rects)
 
-        self.anim_state_check()
+        self.anim_state_check(player_pos)
 
     def collision_check(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):
         collide_rects = []
@@ -110,20 +116,17 @@ class Angel(Entity):
                 self.vel.y = 0
                 self.rect.top = rect.bottom
 
-    def anim_state_check(self):
-        if self.collision_state['left']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'right', self.current_animation.animation_index)
+    def anim_state_check(self, player_pos):
+        if dist(player_pos, self.rect.center) < self.vision_radius:
+            self.state = "following player"
+        else:
+            self.state = "idle"
 
-        if self.collision_state['right']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'left', self.current_animation.animation_index)
-
-        if self.collision_state['top']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'down', self.current_animation.animation_index)
-
-        if self.collision_state['bottom']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'up', self.current_animation.animation_index)
-
-        self.current_animation = self.animation[self.state]
+        if self.state == "following player":
+            if player_pos[0] > self.rect.centerx:
+                self.flip = True
+            else:
+                self.flip = False
 
     @staticmethod
     def change_anim_state(state, new_state, frame):

@@ -9,7 +9,7 @@ except:
     from src.entity import Entity
     from src.animation import Animation
 
-from math import sin
+from math import sin, dist
 
 
 class Glacierd(Entity):
@@ -44,6 +44,9 @@ class Glacierd(Entity):
         self.vel = pg.Vector2(0, 0)
         self.moving_speed = 10
 
+        self.vision = 6 * TILE_SIZE
+        self.following_player = False
+
         self.collision_state = {
             "right": False,
             "left": False,
@@ -63,20 +66,21 @@ class Glacierd(Entity):
 
         surf.blit(self.image, glacierd_pos)
 
-    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float, in_bounds: bool):
-        if in_bounds:
-            if self.state in ["left", "turn-back"]:
-                self.vel.x = -self.moving_speed * dt
-            elif self.state in ["right", "turn"]:
-                self.vel.x = self.moving_speed * dt
-            elif self.state in ["up", "flip-back"]:
-                self.vel.y = -self.moving_speed * dt
-            else:
-                self.vel.y = self.moving_speed * dt
+    def move(self, dt: float, rects: dict[str, dict[str, pg.Rect | pg.FRect]], current_time: float, in_bounds: bool, player_pos):
+        if in_bounds and self.following_player:
+            if player_pos[0] + 5 < self.rect.centerx:
+                self.vel.x = -30*dt
+            elif player_pos[0] - 5 > self.rect.centerx:
+                self.vel.x = 30*dt
+
+            if player_pos[1] + 5 < self.rect.centery:
+                self.vel.y = -30*dt
+            elif  player_pos[1] - 5 > self.rect.centery:
+                self.vel.y = 30*dt
 
             self.movement(rects)
 
-        self.anim_state_check()
+        self.anim_state_check(player_pos)
 
     def collision_check(self, rects: dict[str, dict[str, pg.Rect | pg.FRect]]):
         collide_rects = []
@@ -115,31 +119,28 @@ class Glacierd(Entity):
                 self.vel.y = 0
                 self.rect.top = rect.bottom
 
-    def anim_state_check(self):
-        if self.collision_state['left']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'turn', self.current_animation.animation_index)
+    def anim_state_check(self, player_pos):
+        if dist(player_pos, self.rect.center) < self.vision:
+            self.following_player = True
+        else:
+            self.following_player = False
 
-        if self.collision_state['right']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'turn-back', self.current_animation.animation_index)
+        if self.following_player:
+            if player_pos[0] + 5 < self.rect.centerx:
+                if self.state == "right":
+                    self.state = "turn-back"
+            elif player_pos[0] - 5 > self.rect.centerx:
+                if self.state == "left":
+                    self.state = "turn"
 
-        if self.collision_state['top']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'flip', self.current_animation.animation_index)
-
-        if self.collision_state['bottom']:
-            self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'flip-back', self.current_animation.animation_index)
 
 
-        if self.state in ["turn", "turn-back", "flip", "flip-back"]:
+        if self.state in ["turn", "turn-back"]:
             if self.current_animation.animation_index == len(self.current_animation.animation)-1:
                 if self.state == "turn":
                     self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'right', self.current_animation.animation_index)
-                elif self.state == "turn-back":
+                else:
                     self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'left', self.current_animation.animation_index)
-                elif self.state == "flip":
-                    self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'down', self.current_animation.animation_index)
-                elif self.state == "flip-back":
-                    self.state, self.current_animation.animation_index = self.change_anim_state(self.state, 'up', self.current_animation.animation_index)
-
         self.current_animation = self.animation[self.state]
 
     @staticmethod
